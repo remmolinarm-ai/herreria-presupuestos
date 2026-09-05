@@ -8,6 +8,16 @@
     return { cliente: '', obra: '', categoriaId: '', notas: '', items: [] };
   }
 
+  function normalizar(str) {
+    return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
+  function filtrarMateriales(materiales, query) {
+    var q = normalizar(query).trim();
+    if (!q) return [];
+    return materiales.filter(function (m) { return normalizar(m.nombre).indexOf(q) !== -1; }).slice(0, 8);
+  }
+
   function calcularTotales() {
     var totalMateriales = estado.items.reduce(function (a, i) { return a + i.subtotal; }, 0);
     var categoria = estado.categoriaId ? Store.categorias.get(estado.categoriaId) : null;
@@ -48,11 +58,12 @@
       '</div>' +
 
       '<div class="card">' +
-        '<div class="field"><label for="np-material">Agregar material</label>' +
-          '<input class="input" id="np-material" list="np-material-list" placeholder="Escribí para buscar…" autocomplete="off">' +
-          '<datalist id="np-material-list">' +
-            materiales.map(function (m) { return '<option data-id="' + m.id + '" value="' + Util.escapeHtml(m.nombre) + '">'; }).join('') +
-          '</datalist>' +
+        '<div class="field">' +
+          '<label for="np-material">Agregar material</label>' +
+          '<div class="autocomplete">' +
+            '<input class="input" id="np-material" placeholder="Escribí para buscar… (ej: caño)" autocomplete="off">' +
+            '<div class="autocomplete-list" id="np-material-dropdown" hidden></div>' +
+          '</div>' +
         '</div>' +
         '<div class="field-row">' +
           '<div class="field"><label for="np-cantidad">Cantidad</label>' +
@@ -99,13 +110,67 @@
       renderNuevo();
     });
 
+    // ---- Autocompletado de materiales ----
+    var materialInput = document.getElementById('np-material');
+    var materialDropdown = document.getElementById('np-material-dropdown');
+    var materialSeleccionado = null;
+
+    function elegirMaterial(m) {
+      materialInput.value = m.nombre;
+      materialSeleccionado = m;
+      materialDropdown.hidden = true;
+      document.getElementById('np-cantidad').focus();
+    }
+
+    function mostrarDropdown() {
+      var coincidencias = filtrarMateriales(materiales, materialInput.value);
+      if (coincidencias.length === 0) {
+        materialDropdown.hidden = true;
+        materialDropdown.innerHTML = '';
+        return;
+      }
+      materialDropdown.innerHTML = coincidencias.map(function (m) {
+        return '<button type="button" class="autocomplete-item">' +
+          '<span class="autocomplete-item-nombre">' + Util.escapeHtml(m.nombre) + '</span>' +
+          '<span class="autocomplete-item-precio">' + BudgetPDF.money(m.precio) + ' / ' + Util.escapeHtml(m.unidad) + '</span>' +
+        '</button>';
+      }).join('');
+      materialDropdown.hidden = false;
+      materialDropdown.querySelectorAll('.autocomplete-item').forEach(function (btn, i) {
+        // mousedown (no click) para que se dispare antes del blur del input.
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          elegirMaterial(coincidencias[i]);
+        });
+      });
+    }
+
+    materialInput.addEventListener('input', function () {
+      materialSeleccionado = null;
+      mostrarDropdown();
+    });
+    materialInput.addEventListener('focus', mostrarDropdown);
+    materialInput.addEventListener('blur', function () {
+      setTimeout(function () { materialDropdown.hidden = true; }, 120);
+    });
+    materialInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var coincidencias = filtrarMateriales(materiales, materialInput.value);
+        if (coincidencias.length > 0) elegirMaterial(coincidencias[0]);
+      } else if (e.key === 'Escape') {
+        materialDropdown.hidden = true;
+      }
+    });
+
     document.getElementById('np-agregar-btn').addEventListener('click', function () {
-      var input = document.getElementById('np-material');
-      var nombre = input.value.trim();
+      var nombre = materialInput.value.trim();
       var cantidad = parseFloat(document.getElementById('np-cantidad').value);
       if (!nombre) { Util.toast('Elegí un material de la lista'); return; }
       if (isNaN(cantidad) || cantidad <= 0) { Util.toast('Ingresá una cantidad válida'); return; }
-      var material = materiales.find(function (m) { return m.nombre === nombre; });
+      var material = (materialSeleccionado && materialSeleccionado.nombre === nombre)
+        ? materialSeleccionado
+        : materiales.find(function (m) { return m.nombre === nombre; });
       if (!material) { Util.toast('Ese material no está en la lista de precios'); return; }
 
       var existente = estado.items.find(function (i) { return i.materialId === material.id; });
