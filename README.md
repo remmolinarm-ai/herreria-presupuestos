@@ -132,39 +132,47 @@ columnas **Nombre | Unidad | Precio** (fila 1 = encabezado) y tocar
 "Actualizar precios desde Sheets": actualiza el precio de los materiales
 que coincidan por nombre y agrega los que todavía no existan. No usa
 ningún backend ni tiene costo — pide, en el momento, permiso de solo
-lectura sobre esa planilla con la misma cuenta de Google ya conectada.
+lectura sobre Sheets con **Google Identity Services**, independiente del
+login de Firebase (`js/sheets-sync.js`, `window.GOOGLE_OAUTH_CLIENT_ID`
+en `js/firebase-config.js`).
 
-### Falta un paso único en Google Cloud Console para habilitarlo
+Ya está habilitado en el proyecto **carpinteria-metalica-c2c15**: la
+Google Sheets API estaba activa y el "Web client (auto created by Google
+Service)" en Google Cloud Console → Credenciales ya provee el Client ID
+usado. Como la pantalla de consentimiento de ese proyecto está en estado
+**"En producción"** (no "Prueba"), Google puede mostrar una vez el cartel
+**"Google no verificó esta app"** al pedir el permiso — es esperable para
+una app de uso personal no enviada a revisión; se avanza con
+"Avanzado → Ir a [app] (no seguro)".
 
-1. Entrar a https://console.cloud.google.com/ con la misma cuenta de
-   Google del proyecto Firebase, y seleccionar el proyecto
-   **carpinteria-metalica-c2c15** (arriba, selector de proyecto).
-2. **APIs y servicios → Biblioteca** → buscar **"Google Sheets API"** →
-   **Habilitar**.
-3. **APIs y servicios → Pantalla de consentimiento de OAuth**:
-   - Si pide elegir un tipo de usuario, "Externo" está bien.
-   - Dejar el estado en **"Prueba" / "Testing"** (no hace falta publicar
-     ni pasar la verificación de Google para uso personal).
-   - En la sección **"Usuarios de prueba"**, agregar el email de la
-     cuenta de Google que va a usar tu papá para iniciar sesión en la
-     app.
-4. Listo — no hace falta tocar nada más ni habilitar facturación (Sheets
-   API es gratis).
+### Por qué no usa el token de Firebase Auth directamente
+
+Firebase permite agregar scopes extra al proveedor de Google
+(`addScope` + `signInWithPopup`/`reauthenticateWithPopup`) para,
+en teoría, reutilizar el mismo login. En la práctica, para un usuario ya
+autenticado, `credential.accessToken` volvía `undefined` con ambos
+métodos (confirmado en pruebas reales) — es un problema conocido del SDK
+de Firebase Auth al pedir scopes adicionales sobre una sesión existente.
+Por eso este permiso se pide aparte, con la librería de Google pensada
+para esto (Google Identity Services / `google.accounts.oauth2`).
 
 ### Cómo verificar que quedó funcionando
 
 Tampoco se pudo probar esto desde este entorno (mismo motivo que el login
-de Google). Una vez hecho el paso de arriba:
+de Google).
 
 1. Crear una planilla de prueba en Google Sheets con columnas
    `Nombre | Unidad | Precio` y un par de filas de ejemplo.
 2. En la app, Ajustes → pegar el link → "Actualizar precios desde
-   Sheets". La primera vez va a pedir confirmar el permiso de lectura
-   sobre Sheets (un cartel de Google, además del que ya usa para el
-   login).
-3. Si dice "Google no devolvió permiso de acceso a Sheets" o similar:
-   revisar que el email usado esté en "Usuarios de prueba" (paso 3
-   arriba).
+   Sheets". La primera vez pide confirmar el permiso de lectura sobre
+   Sheets — puede aparecer el cartel de "Google no verificó esta app"
+   (ver arriba) y/o el de elegir cuenta, ambos son esperables.
+3. Si dice "No se pudo cargar el inicio de sesión de Google": la
+   página se abrió sin conexión al momento de cargar, o algún bloqueador
+   de scripts está frenando `accounts.google.com` — recargar y probar de
+   nuevo.
+4. Si vuelve a fallar con otro mensaje: pasarlo tal cual aparece para
+   revisar la causa puntual.
 
 ## Estructura
 

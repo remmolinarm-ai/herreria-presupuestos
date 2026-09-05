@@ -1,14 +1,52 @@
 /**
  * Actualiza la lista de precios leyendo una planilla de Google Sheets.
- * Sin backend ni costo: usa el token de Google que entrega el propio login
- * (Firebase Auth) con permiso de solo lectura sobre Sheets, pedido bajo
- * demanda, y llama a la API REST de Sheets directo desde el navegador.
+ * Sin backend ni costo: pide un permiso de solo lectura sobre Sheets con
+ * Google Identity Services (independiente del login de Firebase) y llama
+ * a la API REST de Sheets directo desde el navegador con ese token.
  *
  * Formato esperado de la planilla (primera hoja, fila 1 = encabezado):
  *   Columna A: Nombre   |   Columna B: Unidad   |   Columna C: Precio
  */
 (function (global) {
   'use strict';
+
+  var SCOPE_SHEETS = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+  var clienteToken = null; // se crea una sola vez y se reutiliza
+
+  function obtenerTokenSheets() {
+    return new Promise(function (resolve, reject) {
+      if (!global.google || !global.google.accounts || !global.google.accounts.oauth2) {
+        reject(new Error('No se pudo cargar el inicio de sesión de Google. Revisá la conexión y recargá la página.'));
+        return;
+      }
+      if (!global.GOOGLE_OAUTH_CLIENT_ID) {
+        reject(new Error('Falta configurar GOOGLE_OAUTH_CLIENT_ID.'));
+        return;
+      }
+      var email = (global.FirebaseSync && global.FirebaseSync.usuarioActual() && global.FirebaseSync.usuarioActual().email) || '';
+
+      if (!clienteToken) {
+        clienteToken = global.google.accounts.oauth2.initTokenClient({
+          client_id: global.GOOGLE_OAUTH_CLIENT_ID,
+          scope: SCOPE_SHEETS,
+          hint: email,
+          callback: function () {}, // se pisa en cada llamado, ver abajo
+          error_callback: function () {}
+        });
+      }
+      // Pisamos el callback en cada pedido para poder resolver/rechazar
+      // esta promesa puntual (initTokenClient no admite pasarlo por llamado).
+      clienteToken.callback = function (resp) {
+        if (resp && resp.error) { reject(new Error('Google no otorgó el permiso (' + resp.error + ').')); return; }
+        if (!resp || !resp.access_token) { reject(new Error('Google no devolvió un token de acceso.')); return; }
+        resolve(resp.access_token);
+      };
+      clienteToken.error_callback = function (err) {
+        reject(new Error((err && err.type === 'popup_closed') ? 'Se cerró la ventana de permiso de Google.' : ((err && err.message) || 'No se pudo completar el permiso de Google.')));
+      };
+      clienteToken.requestAccessToken({ hint: email });
+    });
+  }
 
   function normalizar(str) {
     return String(str || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -41,7 +79,7 @@
     if (!sheetId) return Promise.reject(new Error('No pude reconocer el ID de la planilla. Pegá el link completo de Google Sheets.'));
     rango = rango && rango.trim() ? rango.trim() : 'A2:C1000';
 
-    return global.FirebaseSync.obtenerTokenSheets()
+    return obtenerTokenSheets()
       .then(function (token) { return leerFilas(sheetId, rango, token); })
       .then(function (filas) {
         var materiales = global.Store.materiales.getAll();
