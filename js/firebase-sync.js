@@ -225,7 +225,13 @@
     }
     var providerSheets = new global.firebase.auth.GoogleAuthProvider();
     providerSheets.addScope('https://www.googleapis.com/auth/spreadsheets.readonly');
-    return auth.currentUser.reauthenticateWithPopup(providerSheets).then(function (result) {
+    // Sugiere la misma cuenta ya conectada, para no terminar con el token
+    // de una cuenta de Google distinta a la que sincroniza los datos.
+    providerSheets.setCustomParameters({ login_hint: auth.currentUser.email || '' });
+    // signInWithPopup (no reauthenticateWithPopup) es el que efectivamente
+    // devuelve el accessToken de Google con el scope pedido; como es la
+    // misma cuenta, no crea un usuario nuevo ni cierra la sesión actual.
+    return auth.signInWithPopup(providerSheets).then(function (result) {
       var credential = global.firebase.auth.GoogleAuthProvider.credentialFromResult(result);
       if (!credential || !credential.accessToken) {
         throw new Error('Google no devolvió permiso de acceso a Sheets.');
