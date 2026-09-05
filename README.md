@@ -124,6 +124,48 @@ comprobar:
    las reglas de seguridad se hayan publicado (paso anterior) y que haya
    conexión a internet en ese momento.
 
+## Actualizar precios desde Google Sheets
+
+En **Ajustes → Lista de precios desde Google Sheets** (visible una vez
+iniciada sesión con Google) se puede pegar el link de una planilla con
+columnas **Nombre | Unidad | Precio** (fila 1 = encabezado) y tocar
+"Actualizar precios desde Sheets": actualiza el precio de los materiales
+que coincidan por nombre y agrega los que todavía no existan. No usa
+ningún backend ni tiene costo — pide, en el momento, permiso de solo
+lectura sobre esa planilla con la misma cuenta de Google ya conectada.
+
+### Falta un paso único en Google Cloud Console para habilitarlo
+
+1. Entrar a https://console.cloud.google.com/ con la misma cuenta de
+   Google del proyecto Firebase, y seleccionar el proyecto
+   **carpinteria-metalica-c2c15** (arriba, selector de proyecto).
+2. **APIs y servicios → Biblioteca** → buscar **"Google Sheets API"** →
+   **Habilitar**.
+3. **APIs y servicios → Pantalla de consentimiento de OAuth**:
+   - Si pide elegir un tipo de usuario, "Externo" está bien.
+   - Dejar el estado en **"Prueba" / "Testing"** (no hace falta publicar
+     ni pasar la verificación de Google para uso personal).
+   - En la sección **"Usuarios de prueba"**, agregar el email de la
+     cuenta de Google que va a usar tu papá para iniciar sesión en la
+     app.
+4. Listo — no hace falta tocar nada más ni habilitar facturación (Sheets
+   API es gratis).
+
+### Cómo verificar que quedó funcionando
+
+Tampoco se pudo probar esto desde este entorno (mismo motivo que el login
+de Google). Una vez hecho el paso de arriba:
+
+1. Crear una planilla de prueba en Google Sheets con columnas
+   `Nombre | Unidad | Precio` y un par de filas de ejemplo.
+2. En la app, Ajustes → pegar el link → "Actualizar precios desde
+   Sheets". La primera vez va a pedir confirmar el permiso de lectura
+   sobre Sheets (un cartel de Google, además del que ya usa para el
+   login).
+3. Si dice "Google no devolvió permiso de acceso a Sheets" o similar:
+   revisar que el email usado esté en "Usuarios de prueba" (paso 3
+   arriba).
+
 ## Estructura
 
 ```
@@ -137,6 +179,8 @@ js/
                          contraseñas)
   firebase-sync.js      Login con Google + sincronización con Firestore
                          (opcional: si no carga, la app sigue 100% local)
+  sheets-sync.js        Actualiza precios leyendo una planilla de Google
+                         Sheets (usa el token de Google del login)
   util.js               Helpers compartidos (toast, formateo, descargas)
   store.js              Capa de datos (materiales, trabajos, presupuestos,
                          empresa, backup) — local por defecto, reemplazada
