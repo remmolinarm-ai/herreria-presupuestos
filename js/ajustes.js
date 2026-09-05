@@ -22,6 +22,22 @@
       '<button class="btn btn-primary btn-block" id="aj-auth-btn" data-action="entrar">Iniciar sesión con Google</button>';
   }
 
+  function renderSheets(empresa) {
+    var conectado = global.FirebaseSync && global.FirebaseSync.estaConfigurado() && global.FirebaseSync.usuarioActual();
+    if (!conectado) {
+      return '<p style="font-size:0.82rem;color:var(--steel-500);">' +
+        'Iniciá sesión con Google (arriba) para poder traer precios desde una planilla de Sheets.' +
+        '</p>';
+    }
+    return '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
+        'Planilla con columnas <strong>Nombre | Unidad | Precio</strong> (fila 1 = encabezado, se ignora). ' +
+        'Actualiza el precio de los materiales que coincidan por nombre y agrega los que no existan todavía.' +
+      '</p>' +
+      '<div class="field"><label for="aj-sheets-url">Link de la planilla</label>' +
+        '<input class="input" id="aj-sheets-url" placeholder="https://docs.google.com/spreadsheets/d/…" value="' + Util.escapeHtml(empresa.sheetsUrl || '') + '"></div>' +
+      '<button class="btn btn-primary btn-block" id="aj-sheets-actualizar">Actualizar precios desde Sheets</button>';
+  }
+
   function render() {
     var cont = document.getElementById('ajustes-container');
     var e = Store.empresa.get();
@@ -57,6 +73,11 @@
       '<div class="card">' +
         '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Sincronización entre dispositivos</h2>' +
         renderSincronizacion() +
+      '</div>' +
+
+      '<div class="card">' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Lista de precios desde Google Sheets</h2>' +
+        renderSheets(e) +
       '</div>';
 
     document.getElementById('aj-guardar').addEventListener('click', function () {
@@ -109,6 +130,30 @@
       authBtn.addEventListener('click', function () {
         if (authBtn.dataset.action === 'entrar') global.FirebaseSync.iniciarSesion();
         else global.FirebaseSync.cerrarSesion();
+      });
+    }
+
+    var sheetsBtn = document.getElementById('aj-sheets-actualizar');
+    if (sheetsBtn) {
+      sheetsBtn.addEventListener('click', function () {
+        var url = document.getElementById('aj-sheets-url').value.trim();
+        if (!url) { Util.toast('Pegá el link de la planilla'); return; }
+
+        Store.empresa.save(Object.assign({}, Store.empresa.get(), { sheetsUrl: url }));
+
+        var textoOriginal = sheetsBtn.textContent;
+        sheetsBtn.disabled = true;
+        sheetsBtn.textContent = 'Actualizando…';
+        global.SheetsSync.actualizarDesdeSheet(url).then(function (r) {
+          Util.toast('Listo: ' + r.actualizados + ' actualizados, ' + r.agregados + ' nuevos' + (r.invalidas ? ', ' + r.invalidas + ' filas inválidas' : ''));
+          if (global.VistaMateriales) global.VistaMateriales.renderLista();
+        }).catch(function (err) {
+          console.error(err);
+          Util.toast('No se pudo actualizar: ' + err.message);
+        }).finally(function () {
+          sheetsBtn.disabled = false;
+          sheetsBtn.textContent = textoOriginal;
+        });
       });
     }
   }

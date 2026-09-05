@@ -213,6 +213,27 @@
     return auth && auth.currentUser ? auth.currentUser : null;
   }
 
+  /**
+   * Pide (bajo demanda, no en el login normal) permiso de lectura sobre
+   * Google Sheets y devuelve un access token de Google válido por un rato.
+   * Vuelve a pedirlo cada vez que hace falta en vez de guardarlo, porque
+   * expira en aprox. 1 hora y esto se usa esporádicamente.
+   */
+  function obtenerTokenSheets() {
+    if (!auth || !auth.currentUser) {
+      return Promise.reject(new Error('Iniciá sesión con Google primero.'));
+    }
+    var providerSheets = new global.firebase.auth.GoogleAuthProvider();
+    providerSheets.addScope('https://www.googleapis.com/auth/spreadsheets.readonly');
+    return auth.currentUser.reauthenticateWithPopup(providerSheets).then(function (result) {
+      var credential = global.firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+      if (!credential || !credential.accessToken) {
+        throw new Error('Google no devolvió permiso de acceso a Sheets.');
+      }
+      return credential.accessToken;
+    });
+  }
+
   function init() {
     if (!estaConfigurado()) {
       console.warn('Firebase no configurado: la app sigue en modo local.');
@@ -238,6 +259,7 @@
     estaConfigurado: estaConfigurado,
     iniciarSesion: iniciarSesion,
     cerrarSesion: cerrarSesion,
-    usuarioActual: usuarioActual
+    usuarioActual: usuarioActual,
+    obtenerTokenSheets: obtenerTokenSheets
   };
 })(window);
