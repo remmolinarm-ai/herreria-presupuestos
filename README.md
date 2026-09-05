@@ -1,0 +1,176 @@
+# Presupuestador — Herrería
+
+App web instalable (PWA) para cargar la lista de precios de materiales y
+armar presupuestos, calculando la mano de obra como un porcentaje del costo
+de materiales según el tipo de trabajo. Funciona sin conexión y no depende
+de ninguna librería externa.
+
+## Cómo usar la app
+
+1. **Materiales**: cargá cada material con su unidad (m, kg, unidad…) y
+   precio. Se puede editar en cualquier momento; queda registrada la fecha
+   de la última actualización.
+2. **Trabajos**: tipos de trabajo con su % de mano de obra sobre el costo
+   de materiales. Viene precargada con 8 categorías típicas de herrería
+   (Portones 35%, Rejas 30%, Barandas 40%, Escaleras 35%, Estructuras 25%,
+   Herrería artística 60%, Muebles a medida 45%, Reparaciones 55%) — son
+   solo un punto de partida, se editan o se borran libremente.
+3. **Presupuestar**: elegí cliente, tipo de trabajo, y sumá los materiales
+   que se van a usar con su cantidad. La app calcula materiales + mano de
+   obra (% de la categoría) + total, y al guardar genera y descarga
+   automáticamente el PDF del presupuesto.
+4. **Historial**: todos los presupuestos guardados, con opción de volver a
+   descargar el PDF o eliminarlos.
+5. **Ajustes**: datos de la empresa (aparecen en el PDF) y botones para
+   exportar/importar una copia de seguridad completa (materiales,
+   trabajos, presupuestos y datos de la empresa) en un archivo `.json`.
+6. **Botón de chat (💬)**: preguntá el precio de un material por nombre o
+   por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
+   buscador local sobre los materiales ya cargados (no manda nada a
+   internet), útil para consultar rápido sin entrar a la lista completa.
+
+## Instalar en el celular / la compu
+
+Es una PWA: abriendo el sitio publicado (`https://remmolinarm-ai.github.io/herreria-presupuestos/`
+una vez activado GitHub Pages), el navegador (Chrome/Edge en Android o
+compu) ofrece "Instalar app" / "Agregar a la pantalla de inicio". Una vez
+instalada funciona como una app normal, con ícono propio, y sigue andando
+sin conexión a internet gracias al service worker que cachea la app.
+
+## Dónde se guardan los datos
+
+La app ya está conectada al proyecto Firebase **carpinteria-metalica-c2c15**
+(`js/firebase-config.js`). Con eso:
+
+- **Sin iniciar sesión**: todo se guarda solo en este dispositivo
+  (`localStorage`), igual que antes.
+- **Iniciando sesión con Google** (botón en **Ajustes → Sincronización
+  entre dispositivos**): los materiales, tipos de trabajo, presupuestos y
+  datos de la empresa se guardan en Firestore y se sincronizan solos con
+  cualquier otro dispositivo donde se inicie sesión con esa misma cuenta
+  de Google — sigue funcionando sin conexión (Firestore cachea localmente
+  y sube los cambios cuando vuelve el internet).
+- **La primera vez que se inicia sesión** en una cuenta que todavía no
+  tiene nada guardado en la nube, la app sube automáticamente lo que ya
+  hubiera cargado en ese dispositivo (no hace falta cargar todo de nuevo).
+  Un segundo dispositivo que inicie sesión después ya va a encontrar los
+  datos de la nube — si ese segundo dispositivo tenía datos propios
+  cargados de antes, conviene exportarlos primero (**Ajustes → Exportar
+  copia**) por si hace falta revisarlos o sumarlos a mano.
+
+### Falta un paso en Firebase Console para que funcione: reglas de seguridad
+
+Sin esto, Firestore rechaza todas las lecturas/escrituras (ya lo
+verificamos: por defecto deniega todo, lo cual está bien mientras no haya
+reglas). Para habilitar el acceso *solo al dueño de cada cuenta*:
+
+1. En Firebase Console → **Bases de datos y almacenamiento → Firestore
+   Database → pestaña "Reglas"**.
+2. Reemplazar el contenido por:
+
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{uid} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+         match /{document=**} {
+           allow read, write: if request.auth != null && request.auth.uid == uid;
+         }
+       }
+     }
+   }
+   ```
+3. **Publicar**.
+
+   Esto permite que una persona autenticada lea y escriba únicamente
+   dentro de `users/{su-propio-uid}/...` — nadie puede ver ni tocar datos
+   de otra cuenta.
+
+### Dominios autorizados para el botón "Iniciar sesión con Google"
+
+Google exige que el dominio desde donde se abre la app esté en la lista
+blanca de Firebase Auth, si no el botón va a fallar con un error de
+"dominio no autorizado":
+
+1. Firebase Console → **Seguridad → Authentication → Settings →
+   Authorized domains**.
+2. Verificar que esté el dominio donde se publique el sitio. Como este
+   repo se publica en `remmolinarm-ai.github.io/herreria-presupuestos/`,
+   el dominio a autorizar es **`remmolinarm-ai.github.io`** (el dominio
+   alcanza, no hace falta la carpeta) — si ya se había agregado para otro
+   proyecto en el mismo usuario de GitHub, no hace falta agregarlo de
+   nuevo. `localhost` ya viene habilitado por defecto para probar en la
+   compu.
+
+### Cómo verificar que quedó funcionando
+
+No fue posible probar el inicio de sesión real con Google ni la
+sincronización en vivo desde este entorno de desarrollo (no tiene salida
+a internet hacia los dominios de Google necesarios para eso). Una vez
+publicado el sitio con las reglas y el dominio autorizado, conviene
+comprobar:
+
+1. Abrir la app, ir a **Ajustes** y tocar **"Iniciar sesión con Google"**
+   → debería abrir la ventana de cuentas de Google y, al elegir una,
+   volver a la app mostrando el badge superior como **"☁️ Sincronizado"**
+   y en Ajustes "Conectado como [email]".
+2. Cargar un material de prueba, abrir la misma app en el otro
+   dispositivo, iniciar sesión con la misma cuenta, y confirmar que el
+   material aparece solo sin tener que cargarlo de nuevo.
+3. Si el botón de login falla con un error de dominio: revisar el paso
+   de "Dominios autorizados" de arriba.
+4. Si aparece "no se pudo guardar" al generar un presupuesto: revisar que
+   las reglas de seguridad se hayan publicado (paso anterior) y que haya
+   conexión a internet en ese momento.
+
+## Estructura
+
+```
+index.html             Shell de la app (navegación por pestañas)
+manifest.webmanifest    Metadata de instalación (PWA)
+service-worker.js       Cacheo para uso sin conexión
+css/app.css             Estilos (mobile-first, con layout de escritorio)
+icons/                  Íconos de la app
+js/
+  firebase-config.js    Config pública del proyecto Firebase (no son
+                         contraseñas)
+  firebase-sync.js      Login con Google + sincronización con Firestore
+                         (opcional: si no carga, la app sigue 100% local)
+  util.js               Helpers compartidos (toast, formateo, descargas)
+  store.js              Capa de datos (materiales, trabajos, presupuestos,
+                         empresa, backup) — local por defecto, reemplazada
+                         por Firestore cuando hay sesión iniciada
+  pdf-lite.js           Generador de PDF genérico, sin dependencias
+  budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
+  materiales.js         Pantalla Lista de precios
+  categorias.js         Pantalla Tipos de trabajo
+  presupuestos.js       Pantallas Nuevo presupuesto + Historial
+  ajustes.js            Pantalla Ajustes (empresa + backup + login)
+  asistente.js          Buscador de precios en lenguaje natural
+  app.js                Navegación entre pantallas e inicialización
+```
+
+### Por qué el PDF se genera "a mano" (`pdf-lite.js`)
+
+No se usa una librería como jsPDF porque este entorno de desarrollo no
+tiene salida a redes de terceros (CDNs) para descargarla, y además así la
+app no depende de ningún script externo para funcionar sin conexión desde
+el celular. `pdf-lite.js` escribe directamente el archivo PDF (texto con
+las fuentes estándar Helvetica/Helvetica-Bold, líneas, rectángulos y
+paginado automático) — probado generando y leyendo presupuestos de varias
+páginas con `pypdf`.
+
+## Previsualizar localmente
+
+```bash
+python3 -m http.server 8000
+```
+
+y abrir `http://localhost:8000`.
+
+## Publicar en GitHub Pages
+
+En este repositorio, Settings → Pages → Source: "Deploy from a branch" →
+rama `main`, carpeta `/ (root)` → Save. Queda publicado en
+`https://remmolinarm-ai.github.io/herreria-presupuestos/`.
