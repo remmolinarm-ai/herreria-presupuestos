@@ -1,12 +1,12 @@
 {
-  "name": "Presupuestador Herrería",
-  "short_name": "Presupuestador",
-  "description": "Lista de precios y presupuestos para taller de herrería",
+  "name": "REM - Cotizaciones",
+  "short_name": "REM",
+  "description": "Lista de precios y cotizaciones para taller de herrería",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f7f9fb",
+  "background_color": "#f2f4f7",
   "theme_color": "#1b2c63",
   "lang": "es",
   "icons": [

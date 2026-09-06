@@ -1,4 +1,4 @@
-# Presupuestador — Herrería
+# REM - Cotizaciones
 
 App web instalable (PWA) para cargar la lista de precios de materiales y
 armar presupuestos, calculando la mano de obra como un porcentaje del costo
