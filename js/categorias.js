@@ -55,29 +55,33 @@
       return;
     }
 
-    cont.innerHTML = categorias.map(function (c) {
-      return '<div class="list-row" data-id="' + c.id + '">' +
-        '<div class="list-row-main">' +
-          '<div class="list-row-title">' + Util.escapeHtml(c.nombre) + '</div>' +
-          '<div class="list-row-sub"><span class="chip">' + c.porcentaje + '% mano de obra</span></div>' +
-        '</div>' +
-        '<div class="list-row-actions">' +
-          '<button data-action="editar" aria-label="Editar">✏️</button>' +
-          '<button data-action="borrar" aria-label="Eliminar">🗑️</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    cont.innerHTML =
+      '<div class="table-wrap"><table class="data-table">' +
+        '<thead><tr><th>Tipo de trabajo</th><th>Mano de obra</th><th></th></tr></thead>' +
+        '<tbody>' +
+        categorias.map(function (c) {
+          return '<tr data-id="' + c.id + '">' +
+            '<td class="cell-title cell-wrap">' + Util.escapeHtml(c.nombre) + '</td>' +
+            '<td><span class="chip">' + c.porcentaje + '%</span></td>' +
+            '<td class="col-actions">' +
+              '<button class="icon-btn" data-action="editar" aria-label="Editar">✏️</button>' +
+              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">🗑️</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody>' +
+      '</table></div>';
 
     cont.querySelectorAll('[data-action="editar"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        editandoId = btn.closest('.list-row').dataset.id;
+        editandoId = btn.closest('tr').dataset.id;
         renderForm();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
     cont.querySelectorAll('[data-action="borrar"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = btn.closest('.list-row').dataset.id;
+        var id = btn.closest('tr').dataset.id;
         var cat = Store.categorias.get(id);
         if (!cat) return;
         if (confirm('¿Eliminar el tipo de trabajo "' + cat.nombre + '"? Los presupuestos ya guardados no se modifican.')) {

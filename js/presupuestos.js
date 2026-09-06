@@ -261,22 +261,29 @@
       return;
     }
 
-    cont.innerHTML = lista.map(function (p) {
-      return '<div class="list-row" data-id="' + p.id + '">' +
-        '<div class="list-row-main">' +
-          '<div class="list-row-title">N° ' + p.numero + (p.cliente ? ' — ' + Util.escapeHtml(p.cliente) : '') + '</div>' +
-          '<div class="list-row-sub">' + Util.escapeHtml(p.categoriaNombre || '') + ' · ' + Util.fechaCorta(p.fecha) + ' · ' + BudgetPDF.money(p.total) + '</div>' +
-        '</div>' +
-        '<div class="list-row-actions">' +
-          '<button data-action="pdf" aria-label="Descargar PDF">📄</button>' +
-          '<button data-action="borrar" aria-label="Eliminar">🗑️</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    cont.innerHTML =
+      '<div class="table-wrap"><table class="data-table">' +
+        '<thead><tr><th>N°</th><th>Cliente</th><th class="hide-narrow">Tipo de trabajo</th><th class="hide-narrow">Fecha</th><th>Total</th><th></th></tr></thead>' +
+        '<tbody>' +
+        lista.map(function (p) {
+          return '<tr data-id="' + p.id + '">' +
+            '<td class="cell-title">' + p.numero + '</td>' +
+            '<td class="cell-wrap">' + Util.escapeHtml(p.cliente || '—') + '</td>' +
+            '<td class="hide-narrow">' + Util.escapeHtml(p.categoriaNombre || '—') + '</td>' +
+            '<td class="cell-sub hide-narrow">' + Util.fechaCorta(p.fecha) + '</td>' +
+            '<td class="cell-title">' + BudgetPDF.money(p.total) + '</td>' +
+            '<td class="col-actions">' +
+              '<button class="icon-btn" data-action="pdf" aria-label="Descargar PDF">📄</button>' +
+              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">🗑️</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody>' +
+      '</table></div>';
 
     cont.querySelectorAll('[data-action="pdf"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = btn.closest('.list-row').dataset.id;
+        var id = btn.closest('tr').dataset.id;
         var p = Store.presupuestos.get(id);
         if (!p) return;
         BudgetPDF.descargar(p, Store.empresa.get());
@@ -284,7 +291,7 @@
     });
     cont.querySelectorAll('[data-action="borrar"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = btn.closest('.list-row').dataset.id;
+        var id = btn.closest('tr').dataset.id;
         var p = Store.presupuestos.get(id);
         if (!p) return;
         if (confirm('¿Eliminar el presupuesto N° ' + p.numero + '?')) {

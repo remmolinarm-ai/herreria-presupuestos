@@ -18,10 +18,30 @@
 
 <header class="app-header">
   <div class="app-header-inner">
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="side-nav">☰</button>
     <span class="app-title">Presupuestador</span>
     <span class="app-sync-badge" id="sync-badge" title="Guardado en este dispositivo">📱 Local</span>
   </div>
 </header>
+
+<div class="nav-backdrop" id="nav-backdrop"></div>
+<nav class="side-nav" id="side-nav" aria-label="Navegación de la app">
+  <button class="nav-link" data-target="materiales" aria-current="page">
+    <span class="nav-icon" aria-hidden="true">📋</span><span>Materiales</span>
+  </button>
+  <button class="nav-link" data-target="categorias">
+    <span class="nav-icon" aria-hidden="true">🏷️</span><span>Trabajos</span>
+  </button>
+  <button class="nav-link" data-target="nuevo">
+    <span class="nav-icon" aria-hidden="true">🧮</span><span>Presupuestar</span>
+  </button>
+  <button class="nav-link" data-target="historial">
+    <span class="nav-icon" aria-hidden="true">🗂️</span><span>Historial</span>
+  </button>
+  <button class="nav-link" data-target="ajustes">
+    <span class="nav-icon" aria-hidden="true">⚙️</span><span>Ajustes</span>
+  </button>
+</nav>
 
 <main class="app-main" id="app-main">
 
@@ -80,24 +100,6 @@
   </section>
 
 </main>
-
-<nav class="tab-bar" id="tab-bar" aria-label="Navegación de la app">
-  <button class="tab-btn" data-target="materiales" aria-current="page">
-    <span class="tab-icon" aria-hidden="true">📋</span><span>Materiales</span>
-  </button>
-  <button class="tab-btn" data-target="categorias">
-    <span class="tab-icon" aria-hidden="true">🏷️</span><span>Trabajos</span>
-  </button>
-  <button class="tab-btn tab-btn-main" data-target="nuevo">
-    <span class="tab-icon" aria-hidden="true">🧮</span><span>Presupuestar</span>
-  </button>
-  <button class="tab-btn" data-target="historial">
-    <span class="tab-icon" aria-hidden="true">🗂️</span><span>Historial</span>
-  </button>
-  <button class="tab-btn" data-target="ajustes">
-    <span class="tab-icon" aria-hidden="true">⚙️</span><span>Ajustes</span>
-  </button>
-</nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

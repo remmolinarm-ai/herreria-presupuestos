@@ -9,16 +9,26 @@
     ajustes: function () { VistaAjustes.init(); }
   };
 
+  function cerrarNav() {
+    var nav = document.getElementById('side-nav');
+    var backdrop = document.getElementById('nav-backdrop');
+    var toggle = document.getElementById('nav-toggle');
+    if (nav) nav.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-open');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  }
+
   function mostrarVista(nombre) {
     document.querySelectorAll('.view').forEach(function (v) {
       v.classList.toggle('is-active', v.dataset.view === nombre);
     });
-    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    document.querySelectorAll('.nav-link').forEach(function (btn) {
       var activo = btn.dataset.target === nombre;
       if (activo) btn.setAttribute('aria-current', 'page');
       else btn.removeAttribute('aria-current');
     });
     if (REFRESH[nombre]) REFRESH[nombre]();
+    cerrarNav();
     window.scrollTo({ top: 0 });
   }
 
@@ -57,9 +67,21 @@
     Store.subscribe('presupuestos', function () { VistaHistorial.renderLista(); });
     Store.subscribe('empresa', function () { VistaAjustes.init(); });
 
-    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    document.querySelectorAll('.nav-link').forEach(function (btn) {
       btn.addEventListener('click', function () { mostrarVista(btn.dataset.target); });
     });
+
+    var navToggle = document.getElementById('nav-toggle');
+    var navBackdrop = document.getElementById('nav-backdrop');
+    if (navToggle) {
+      navToggle.addEventListener('click', function () {
+        var nav = document.getElementById('side-nav');
+        var abierto = nav.classList.toggle('is-open');
+        navBackdrop.classList.toggle('is-open', abierto);
+        navToggle.setAttribute('aria-expanded', String(abierto));
+      });
+    }
+    if (navBackdrop) navBackdrop.addEventListener('click', cerrarNav);
 
     mostrarVista('materiales');
     registrarServiceWorker();

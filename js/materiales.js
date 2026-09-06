@@ -71,30 +71,35 @@
       return;
     }
 
-    cont.innerHTML = materiales.map(function (m) {
-      return '<div class="list-row" data-id="' + m.id + '">' +
-        '<div class="list-row-main">' +
-          '<div class="list-row-title">' + Util.escapeHtml(m.nombre) + '</div>' +
-          '<div class="list-row-sub">' + BudgetPDF.money(m.precio) + ' / ' + Util.escapeHtml(m.unidad) +
-            (m.actualizado ? ' · act. ' + Util.fechaCorta(m.actualizado) : '') + '</div>' +
-        '</div>' +
-        '<div class="list-row-actions">' +
-          '<button data-action="editar" aria-label="Editar">✏️</button>' +
-          '<button data-action="borrar" aria-label="Eliminar">🗑️</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    cont.innerHTML =
+      '<div class="table-wrap"><table class="data-table">' +
+        '<thead><tr><th>Material</th><th>Unidad</th><th>Precio</th><th class="hide-narrow">Actualizado</th><th></th></tr></thead>' +
+        '<tbody>' +
+        materiales.map(function (m) {
+          return '<tr data-id="' + m.id + '">' +
+            '<td class="cell-title cell-wrap">' + Util.escapeHtml(m.nombre) + '</td>' +
+            '<td>' + Util.escapeHtml(m.unidad) + '</td>' +
+            '<td>' + BudgetPDF.money(m.precio) + '</td>' +
+            '<td class="cell-sub hide-narrow">' + (m.actualizado ? Util.fechaCorta(m.actualizado) : '—') + '</td>' +
+            '<td class="col-actions">' +
+              '<button class="icon-btn" data-action="editar" aria-label="Editar">✏️</button>' +
+              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">🗑️</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody>' +
+      '</table></div>';
 
     cont.querySelectorAll('[data-action="editar"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        editandoId = btn.closest('.list-row').dataset.id;
+        editandoId = btn.closest('tr').dataset.id;
         renderForm();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
     cont.querySelectorAll('[data-action="borrar"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = btn.closest('.list-row').dataset.id;
+        var id = btn.closest('tr').dataset.id;
         var mat = Store.materiales.get(id);
         if (!mat) return;
         if (confirm('¿Eliminar "' + mat.nombre + '" de la lista de precios?')) {
