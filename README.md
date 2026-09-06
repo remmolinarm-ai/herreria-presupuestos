@@ -16,9 +16,28 @@ de ninguna librería externa.
    Herrería artística 60%, Muebles a medida 45%, Reparaciones 55%) — son
    solo un punto de partida, se editan o se borran libremente.
 3. **Presupuestar**: elegí cliente, tipo de trabajo, y sumá los materiales
-   que se van a usar con su cantidad. La app calcula materiales + mano de
-   obra (% de la categoría) + total, y al guardar genera y descarga
-   automáticamente el PDF del presupuesto.
+   que se van a usar con su cantidad. La app calcula el presupuesto con la
+   estructura de costos de una metalmecánica, por capas (cada una sobre el
+   subtotal acumulado):
+
+   ```
+   Materiales directos
+   + Mano de obra directa (% por tipo de trabajo)
+   = Costo de producción
+   + Costos indirectos de fabricación (CIF)
+   + Gastos de administración y comercialización
+   = Costo total
+   + Margen de utilidad
+   = Precio de venta
+   + IVA
+   = Total
+   ```
+
+   Las 4 últimas capas (CIF, Gastos admin., Margen, IVA) son porcentajes
+   globales que se configuran una sola vez en **Ajustes → Estructura de
+   costos** y se aplican a todos los presupuestos; dejando una en 0 no
+   aparece en el presupuesto ni en el PDF. Al guardar, genera y descarga
+   automáticamente el PDF con el desglose completo.
 4. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF o eliminarlos.
 5. **Ajustes**: datos de la empresa (aparecen en el PDF) y botones para

@@ -58,6 +58,26 @@
       '</div>' +
 
       '<div class="card">' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Estructura de costos</h2>' +
+        '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
+          'Porcentajes que se suman en cascada sobre materiales + mano de obra en todos los presupuestos. Dejá en 0 la que no uses — no aparece en el presupuesto.' +
+        '</p>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="aj-cif">Costos indirectos de fabricación (%)</label>' +
+            '<input class="input" id="aj-cif" type="number" min="0" step="0.1" value="' + (e.cifPorcentaje || 0) + '"></div>' +
+          '<div class="field"><label for="aj-gastos-admin">Gastos admin. / comercialización (%)</label>' +
+            '<input class="input" id="aj-gastos-admin" type="number" min="0" step="0.1" value="' + (e.gastosAdminPorcentaje || 0) + '"></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="aj-margen">Margen de utilidad (%)</label>' +
+            '<input class="input" id="aj-margen" type="number" min="0" step="0.1" value="' + (e.margenPorcentaje || 0) + '"></div>' +
+          '<div class="field"><label for="aj-iva">IVA (%)</label>' +
+            '<input class="input" id="aj-iva" type="number" min="0" step="0.1" value="' + (e.ivaPorcentaje || 0) + '"></div>' +
+        '</div>' +
+        '<button class="btn btn-primary btn-block" id="aj-costos-guardar">Guardar estructura de costos</button>' +
+      '</div>' +
+
+      '<div class="card">' +
         '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:10px;">Copia de seguridad</h2>' +
         '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
           'Mientras no esté conectada la sincronización automática, usá esto para pasar los datos entre el celular y la compu: ' +
@@ -81,14 +101,27 @@
       '</div>';
 
     document.getElementById('aj-guardar').addEventListener('click', function () {
-      Store.empresa.save({
+      Store.empresa.save(Object.assign({}, Store.empresa.get(), {
         nombre: document.getElementById('aj-nombre').value.trim(),
         telefono: document.getElementById('aj-telefono').value.trim(),
         direccion: document.getElementById('aj-direccion').value.trim(),
-        condiciones: document.getElementById('aj-condiciones').value.trim(),
-        proximoNumero: e.proximoNumero
-      });
+        condiciones: document.getElementById('aj-condiciones').value.trim()
+      }));
       Util.toast('Datos de la empresa guardados');
+    });
+
+    document.getElementById('aj-costos-guardar').addEventListener('click', function () {
+      function pct(id) {
+        var v = parseFloat(document.getElementById(id).value);
+        return isNaN(v) || v < 0 ? 0 : v;
+      }
+      Store.empresa.save(Object.assign({}, Store.empresa.get(), {
+        cifPorcentaje: pct('aj-cif'),
+        gastosAdminPorcentaje: pct('aj-gastos-admin'),
+        margenPorcentaje: pct('aj-margen'),
+        ivaPorcentaje: pct('aj-iva')
+      }));
+      Util.toast('Estructura de costos guardada');
     });
 
     document.getElementById('aj-exportar').addEventListener('click', function () {

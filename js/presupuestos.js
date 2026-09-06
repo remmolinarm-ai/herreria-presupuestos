@@ -18,12 +18,52 @@
     return materiales.filter(function (m) { return normalizar(m.nombre).indexOf(q) !== -1; }).slice(0, 8);
   }
 
+  /**
+   * Estructura de costos por capas, cada una calculada sobre el subtotal
+   * acumulado hasta ese punto (costeo estándar de una metalmecánica):
+   * Materiales + Mano de obra = Costo de producción
+   *   + CIF = costo con indirectos de fabricación
+   *     + Gastos de administración/comercialización = Costo total
+   *       + Margen de utilidad = Precio de venta
+   *         + IVA = Total
+   * CIF, Gastos admin., Margen e IVA son porcentajes globales (Ajustes);
+   * la Mano de obra sigue siendo % por tipo de trabajo, como ya estaba.
+   */
   function calcularTotales() {
     var totalMateriales = estado.items.reduce(function (a, i) { return a + i.subtotal; }, 0);
     var categoria = estado.categoriaId ? Store.categorias.get(estado.categoriaId) : null;
     var porcentaje = categoria ? categoria.porcentaje : 0;
     var manoObra = totalMateriales * porcentaje / 100;
-    return { totalMateriales: totalMateriales, porcentaje: porcentaje, manoObra: manoObra, total: totalMateriales + manoObra, categoria: categoria };
+    var costoProduccion = totalMateriales + manoObra;
+
+    var empresa = Store.empresa.get();
+    var cifPorcentaje = Number(empresa.cifPorcentaje) || 0;
+    var gastosAdminPorcentaje = Number(empresa.gastosAdminPorcentaje) || 0;
+    var margenPorcentaje = Number(empresa.margenPorcentaje) || 0;
+    var ivaPorcentaje = Number(empresa.ivaPorcentaje) || 0;
+
+    var cif = costoProduccion * cifPorcentaje / 100;
+    var costoConCif = costoProduccion + cif;
+
+    var gastosAdmin = costoConCif * gastosAdminPorcentaje / 100;
+    var costoTotal = costoConCif + gastosAdmin;
+
+    var margen = costoTotal * margenPorcentaje / 100;
+    var precioVenta = costoTotal + margen;
+
+    var iva = precioVenta * ivaPorcentaje / 100;
+    var total = precioVenta + iva;
+
+    return {
+      totalMateriales: totalMateriales,
+      porcentaje: porcentaje, manoObra: manoObra,
+      cifPorcentaje: cifPorcentaje, cif: cif,
+      gastosAdminPorcentaje: gastosAdminPorcentaje, gastosAdmin: gastosAdmin,
+      margenPorcentaje: margenPorcentaje, margen: margen,
+      ivaPorcentaje: ivaPorcentaje, iva: iva,
+      total: total,
+      categoria: categoria
+    };
   }
 
   function renderNuevo() {
@@ -90,6 +130,10 @@
       '<div class="totals-box">' +
         '<div class="totals-row"><span>Materiales</span><span>' + BudgetPDF.money(t.totalMateriales) + '</span></div>' +
         '<div class="totals-row"><span>Mano de obra (' + t.porcentaje + '%)</span><span>' + BudgetPDF.money(t.manoObra) + '</span></div>' +
+        (t.cifPorcentaje > 0 ? '<div class="totals-row"><span>Costos indirectos de fabricación (' + t.cifPorcentaje + '%)</span><span>' + BudgetPDF.money(t.cif) + '</span></div>' : '') +
+        (t.gastosAdminPorcentaje > 0 ? '<div class="totals-row"><span>Gastos de administración y comercialización (' + t.gastosAdminPorcentaje + '%)</span><span>' + BudgetPDF.money(t.gastosAdmin) + '</span></div>' : '') +
+        (t.margenPorcentaje > 0 ? '<div class="totals-row"><span>Margen de utilidad (' + t.margenPorcentaje + '%)</span><span>' + BudgetPDF.money(t.margen) + '</span></div>' : '') +
+        (t.ivaPorcentaje > 0 ? '<div class="totals-row"><span>IVA (' + t.ivaPorcentaje + '%)</span><span>' + BudgetPDF.money(t.iva) + '</span></div>' : '') +
         '<div class="totals-row total"><span>Total</span><span>' + BudgetPDF.money(t.total) + '</span></div>' +
       '</div>' +
 
@@ -228,6 +272,14 @@
           items: estado.items,
           totalMateriales: totales.totalMateriales,
           manoObra: totales.manoObra,
+          cifPorcentaje: totales.cifPorcentaje,
+          cif: totales.cif,
+          gastosAdminPorcentaje: totales.gastosAdminPorcentaje,
+          gastosAdmin: totales.gastosAdmin,
+          margenPorcentaje: totales.margenPorcentaje,
+          margen: totales.margen,
+          ivaPorcentaje: totales.ivaPorcentaje,
+          iva: totales.iva,
           total: totales.total,
           notas: estado.notas.trim(),
           condiciones: empresa.condiciones

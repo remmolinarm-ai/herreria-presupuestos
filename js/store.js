@@ -101,7 +101,11 @@
         telefono: '',
         direccion: '',
         condiciones: 'Presupuesto válido por 15 días. No incluye instalación salvo que se indique. Se solicita anticipo del 50% para reservar materiales.',
-        proximoNumero: 1
+        proximoNumero: 1,
+        cifPorcentaje: 0,
+        gastosAdminPorcentaje: 0,
+        margenPorcentaje: 0,
+        ivaPorcentaje: 0
       });
     },
     save: function (data) {

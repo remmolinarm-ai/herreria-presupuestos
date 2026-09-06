@@ -94,22 +94,29 @@
     });
 
     y += 10;
-    ensureSpace(80);
+    ensureSpace(190);
 
-    // ---- Totales ----
-    var totalsX = pageW - MARGIN.right - 220;
+    // ---- Totales (estructura de costos por capas) ----
+    // Etiqueta a la izquierda, valor alineado a la derecha (ancho completo
+    // del contenido) para que quepan las etiquetas largas sin superponerse.
+    var totalsRight = pageW - MARGIN.right;
     function totalRow(label, value, opts) {
       opts = opts || {};
-      doc.text(pageIdx, totalsX, y, label, { size: opts.size || 10, bold: !!opts.bold });
-      doc.text(pageIdx, totalsX + 130, y, value, { size: opts.size || 10, bold: !!opts.bold });
-      y += (opts.size || 10) + 8;
+      var size = opts.size || 10;
+      doc.text(pageIdx, MARGIN.left, y, label, { size: size, bold: !!opts.bold });
+      doc.text(pageIdx, totalsRight - doc.textWidth(value, size, !!opts.bold), y, value, { size: size, bold: !!opts.bold });
+      y += size + 8;
     }
-    doc.line(pageIdx, totalsX, y, pageW - MARGIN.right, y, { width: 0.5, color: [0.7, 0.7, 0.7] });
+    doc.line(pageIdx, MARGIN.left, y, totalsRight, y, { width: 0.5, color: [0.7, 0.7, 0.7] });
     y += 14;
     totalRow('Materiales', money(presupuesto.totalMateriales));
     totalRow('Mano de obra (' + (presupuesto.porcentaje || 0) + '%)', money(presupuesto.manoObra));
+    if (presupuesto.cifPorcentaje) totalRow('Costos indirectos de fabricación (' + presupuesto.cifPorcentaje + '%)', money(presupuesto.cif));
+    if (presupuesto.gastosAdminPorcentaje) totalRow('Gastos de administración y comercialización (' + presupuesto.gastosAdminPorcentaje + '%)', money(presupuesto.gastosAdmin));
+    if (presupuesto.margenPorcentaje) totalRow('Margen de utilidad (' + presupuesto.margenPorcentaje + '%)', money(presupuesto.margen));
+    if (presupuesto.ivaPorcentaje) totalRow('IVA (' + presupuesto.ivaPorcentaje + '%)', money(presupuesto.iva));
     y += 4;
-    doc.line(pageIdx, totalsX, y, pageW - MARGIN.right, y, { width: 1, color: [0.106, 0.173, 0.388] });
+    doc.line(pageIdx, MARGIN.left, y, totalsRight, y, { width: 1, color: [0.106, 0.173, 0.388] });
     y += 16;
     totalRow('TOTAL', money(presupuesto.total), { size: 13, bold: true });
     y += 14;
