@@ -138,6 +138,10 @@
     var matRef = db.collection('users').doc(uid).collection('materiales');
     var catRef = db.collection('users').doc(uid).collection('categorias');
     var preRef = db.collection('users').doc(uid).collection('presupuestos');
+    var empleRef = db.collection('users').doc(uid).collection('empleados');
+    var pagSueRef = db.collection('users').doc(uid).collection('pagosSueldo');
+    var credRef = db.collection('users').doc(uid).collection('creditos');
+    var pagCredRef = db.collection('users').doc(uid).collection('pagosCredito');
     var empRef = db.collection('users').doc(uid);
 
     return Promise.all([matRef.limit(1).get(), catRef.limit(1).get(), preRef.limit(1).get(), empRef.get()])
@@ -147,6 +151,8 @@
         var hayDatosLocales = local.materiales.getAll().length > 0 ||
           local.categorias.getAll().length > 0 ||
           local.presupuestos.getAll().length > 0 ||
+          local.empleados.getAll().length > 0 ||
+          local.creditos.getAll().length > 0 ||
           !!local.empresa.get().nombre;
         if (!nubeVacia || !hayDatosLocales) return;
 
@@ -162,6 +168,10 @@
         agregar(matRef, local.materiales.getAll());
         agregar(catRef, local.categorias.getAll());
         agregar(preRef, local.presupuestos.getAll());
+        agregar(empleRef, local.empleados.getAll());
+        agregar(pagSueRef, local.pagosSueldo.getAll());
+        agregar(credRef, local.creditos.getAll());
+        agregar(pagCredRef, local.pagosCredito.getAll());
         batch.set(empRef, local.empresa.get());
         return batch.commit().then(function () {
           Util.toast('Los datos de este dispositivo se subieron a la nube');
@@ -178,11 +188,19 @@
       var mat = firestoreCollection('materiales', uid);
       var cat = firestoreCollection('categorias', uid);
       var pre = firestoreCollection('presupuestos', uid);
+      var emple = firestoreCollection('empleados', uid);
+      var pagSue = firestoreCollection('pagosSueldo', uid);
+      var cred = firestoreCollection('creditos', uid);
+      var pagCred = firestoreCollection('pagosCredito', uid);
       var emp = firestoreEmpresa(uid);
-      unsubsNube = [mat._unsub, cat._unsub, pre._unsub, emp._unsub];
+      unsubsNube = [mat._unsub, cat._unsub, pre._unsub, emple._unsub, pagSue._unsub, cred._unsub, pagCred._unsub, emp._unsub];
       Store.materiales = mat;
       Store.categorias = cat;
       Store.presupuestos = pre;
+      Store.empleados = emple;
+      Store.pagosSueldo = pagSue;
+      Store.creditos = cred;
+      Store.pagosCredito = pagCred;
       Store.empresa = emp;
       actualizarBadge('nube', email);
     });
@@ -193,8 +211,12 @@
     Store.materiales = Store._local.materiales;
     Store.categorias = Store._local.categorias;
     Store.presupuestos = Store._local.presupuestos;
+    Store.empleados = Store._local.empleados;
+    Store.pagosSueldo = Store._local.pagosSueldo;
+    Store.creditos = Store._local.creditos;
+    Store.pagosCredito = Store._local.pagosCredito;
     Store.empresa = Store._local.empresa;
-    ['materiales', 'categorias', 'presupuestos', 'empresa'].forEach(function (n) { Store.notify(n); });
+    ['materiales', 'categorias', 'presupuestos', 'empleados', 'pagosSueldo', 'creditos', 'pagosCredito', 'empresa'].forEach(function (n) { Store.notify(n); });
     actualizarBadge('local');
   }
 

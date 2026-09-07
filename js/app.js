@@ -7,6 +7,7 @@
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
     ventas: function () { VistaVentas.render(); },
+    finanzas: function () { VistaFinanzas.render(); },
     ajustes: function () { VistaAjustes.init(); }
   };
 
@@ -39,6 +40,7 @@
     VistaNuevo.init();
     VistaHistorial.renderLista();
     VistaVentas.render();
+    VistaFinanzas.render();
     VistaAjustes.init();
   }
 
@@ -56,6 +58,7 @@
     VistaNuevo.init();
     VistaHistorial.init();
     VistaVentas.init();
+    VistaFinanzas.init();
     VistaAjustes.init();
     Asistente.initUI();
 
@@ -72,11 +75,15 @@
       VistaHistorial.renderLista();
       VistaVentas.render();
       VistaDashboard.render();
+      VistaFinanzas.render();
     });
     Store.subscribe('empresa', function () {
       VistaAjustes.init();
       VistaMateriales.renderLista();
       VistaNuevo.render();
+    });
+    ['empleados', 'pagosSueldo', 'creditos', 'pagosCredito'].forEach(function (coleccion) {
+      Store.subscribe(coleccion, function () { VistaFinanzas.render(); });
     });
 
     document.querySelectorAll('.nav-link').forEach(function (btn) {

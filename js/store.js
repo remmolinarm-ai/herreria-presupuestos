@@ -73,6 +73,10 @@
   var materiales = makeCollection('materiales');
   var categorias = makeCollection('categorias');
   var presupuestos = makeCollection('presupuestos');
+  var empleados = makeCollection('empleados');
+  var pagosSueldo = makeCollection('pagosSueldo');
+  var creditos = makeCollection('creditos');
+  var pagosCredito = makeCollection('pagosCredito');
 
   var CATEGORIAS_DEFAULT = [
     { nombre: 'Portones (corredizos / hojas)', porcentaje: 35 },
@@ -135,6 +139,10 @@
         materiales: global.Store.materiales.getAll(),
         categorias: global.Store.categorias.getAll(),
         presupuestos: global.Store.presupuestos.getAll(),
+        empleados: global.Store.empleados.getAll(),
+        pagosSueldo: global.Store.pagosSueldo.getAll(),
+        creditos: global.Store.creditos.getAll(),
+        pagosCredito: global.Store.pagosCredito.getAll(),
         empresa: global.Store.empresa.get()
       }, null, 2);
     },
@@ -144,6 +152,10 @@
       if (Array.isArray(data.materiales)) global.Store.materiales.replaceAll(data.materiales);
       if (Array.isArray(data.categorias)) global.Store.categorias.replaceAll(data.categorias);
       if (Array.isArray(data.presupuestos)) global.Store.presupuestos.replaceAll(data.presupuestos);
+      if (Array.isArray(data.empleados)) global.Store.empleados.replaceAll(data.empleados);
+      if (Array.isArray(data.pagosSueldo)) global.Store.pagosSueldo.replaceAll(data.pagosSueldo);
+      if (Array.isArray(data.creditos)) global.Store.creditos.replaceAll(data.creditos);
+      if (Array.isArray(data.pagosCredito)) global.Store.pagosCredito.replaceAll(data.pagosCredito);
       if (data.empresa) global.Store.empresa.save(data.empresa);
     }
   };
@@ -154,6 +166,10 @@
     materiales: materiales,
     categorias: categorias,
     presupuestos: presupuestos,
+    empleados: empleados,
+    pagosSueldo: pagosSueldo,
+    creditos: creditos,
+    pagosCredito: pagosCredito,
     empresa: empresa,
     backup: backup,
     ensureSeed: ensureSeed,
@@ -165,6 +181,10 @@
     notify: emit,
     // Implementación 100% local (localStorage), para volver a este modo al
     // cerrar sesión y para la migración inicial de datos a la nube.
-    _local: { materiales: materiales, categorias: categorias, presupuestos: presupuestos, empresa: empresa }
+    _local: {
+      materiales: materiales, categorias: categorias, presupuestos: presupuestos,
+      empleados: empleados, pagosSueldo: pagosSueldo, creditos: creditos, pagosCredito: pagosCredito,
+      empresa: empresa
+    }
   };
 })(window);

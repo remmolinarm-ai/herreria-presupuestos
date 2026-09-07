@@ -200,6 +200,27 @@ textarea.input { resize: vertical; }
   margin-bottom: 12px;
 }
 
+/* ---------- Sub-solapas (ej: Finanzas) ---------- */
+.subtabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.subtab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--steel-500);
+  white-space: nowrap;
+}
+.subtab-btn:hover { color: var(--ink-900); }
+.subtab-btn.is-active { color: var(--brand-700); border-bottom-color: var(--brand-700); }
+
 /* ---------- Tablas de datos ---------- */
 .table-wrap {
   border-radius: var(--radius);
