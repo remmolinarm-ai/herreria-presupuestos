@@ -7,6 +7,7 @@
     stock: function () { VistaStock.render(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
+    ventas: function () { VistaVentas.render(); },
     ajustes: function () { VistaAjustes.init(); }
   };
 
@@ -39,6 +40,7 @@
     VistaStock.render();
     VistaNuevo.init();
     VistaHistorial.renderLista();
+    VistaVentas.render();
     VistaAjustes.init();
   }
 
@@ -56,6 +58,7 @@
     VistaStock.init();
     VistaNuevo.init();
     VistaHistorial.init();
+    VistaVentas.init();
     VistaAjustes.init();
     Asistente.initUI();
 
@@ -71,6 +74,7 @@
     });
     Store.subscribe('presupuestos', function () {
       VistaHistorial.renderLista();
+      VistaVentas.render();
       VistaDashboard.render();
     });
     Store.subscribe('empresa', function () {

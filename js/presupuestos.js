@@ -7,7 +7,7 @@
   function estadoInicial() {
     var empresa = Store.empresa.get();
     return {
-      cliente: '', obra: '', descripcionTrabajo: '',
+      cliente: '', telefono: '', email: '', obra: '', descripcionTrabajo: '',
       manoObraPorcentaje: Number(empresa.manoObraPorcentajeDefault) || 0,
       cifPorcentaje: Number(empresa.cifPorcentaje) || 0,
       gastosAdminPorcentaje: Number(empresa.gastosAdminPorcentaje) || 0,
@@ -21,18 +21,6 @@
     return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
 
-  // Descuenta del stock de cada material lo que se usó en el presupuesto,
-  // convirtiendo la cantidad vendida (por kg, entera o por metro) a piezas
-  // en la unidad propia del material. Deja seguir aunque el stock quede
-  // negativo — eso queda como aviso visual en la lista de Materiales.
-  function descontarStock(items) {
-    items.forEach(function (it) {
-      var mat = Store.materiales.get(it.materialId);
-      if (!mat) return;
-      var piezas = Precios.aPiezas(mat, it.basis, it.cantidad);
-      Store.materiales.save(Object.assign({}, mat, { stock: (Number(mat.stock) || 0) - piezas }));
-    });
-  }
 
   function filtrarMateriales(materiales, query) {
     var q = normalizar(query).trim();
@@ -132,6 +120,12 @@
       '<div class="card">' +
         '<div class="field"><label for="np-cliente">Cliente</label>' +
           '<input class="input" id="np-cliente" placeholder="Nombre del cliente" value="' + Util.escapeHtml(estado.cliente) + '"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="np-telefono">WhatsApp del cliente</label>' +
+            '<input class="input" id="np-telefono" type="tel" placeholder="Opcional, ej: 54911…" value="' + Util.escapeHtml(estado.telefono) + '"></div>' +
+          '<div class="field"><label for="np-email">Email del cliente</label>' +
+            '<input class="input" id="np-email" type="email" placeholder="Opcional" value="' + Util.escapeHtml(estado.email) + '"></div>' +
+        '</div>' +
         '<div class="field"><label for="np-obra">Obra / Dirección</label>' +
           '<input class="input" id="np-obra" placeholder="Opcional" value="' + Util.escapeHtml(estado.obra) + '"></div>' +
         '<div class="field"><label for="np-descripcion">Descripción del trabajo</label>' +
@@ -203,6 +197,8 @@
       '</div>';
 
     document.getElementById('np-cliente').addEventListener('input', function (e) { estado.cliente = e.target.value; });
+    document.getElementById('np-telefono').addEventListener('input', function (e) { estado.telefono = e.target.value; });
+    document.getElementById('np-email').addEventListener('input', function (e) { estado.email = e.target.value; });
     document.getElementById('np-obra').addEventListener('input', function (e) { estado.obra = e.target.value; });
     document.getElementById('np-descripcion').addEventListener('input', function (e) { estado.descripcionTrabajo = e.target.value; });
     document.getElementById('np-notas').addEventListener('input', function (e) { estado.notas = e.target.value; });
@@ -364,8 +360,12 @@
           numero: numero,
           fecha: Store.nowISO(),
           cliente: estado.cliente.trim(),
+          telefono: estado.telefono.trim(),
+          email: estado.email.trim(),
           obra: estado.obra.trim(),
           categoriaNombre: estado.descripcionTrabajo.trim(),
+          vendido: false,
+          fechaVenta: null,
           porcentaje: totales.porcentaje,
           items: estado.items,
           totalMateriales: totales.totalMateriales,
@@ -386,7 +386,6 @@
           condiciones: empresa.condiciones
         };
         Store.presupuestos.save(presupuesto);
-        descontarStock(estado.items);
         BudgetPDF.descargar(presupuesto, empresa);
         Util.toast('Presupuesto N° ' + presupuesto.numero + ' guardado');
         estado = estadoInicial();
@@ -431,7 +430,7 @@
 
     cont.innerHTML =
       '<div class="table-wrap"><table class="data-table">' +
-        '<thead><tr><th>N°</th><th>Cliente</th><th class="hide-narrow">Trabajo</th><th class="hide-narrow">Fecha</th><th>Total</th><th></th></tr></thead>' +
+        '<thead><tr><th>N°</th><th>Cliente</th><th class="hide-narrow">Trabajo</th><th class="hide-narrow">Fecha</th><th>Total</th><th class="hide-narrow">Vendido</th><th></th></tr></thead>' +
         '<tbody>' +
         lista.map(function (p) {
           return '<tr data-id="' + p.id + '">' +
@@ -440,7 +439,10 @@
             '<td class="hide-narrow">' + Util.escapeHtml(p.categoriaNombre || '—') + '</td>' +
             '<td class="cell-sub hide-narrow">' + Util.fechaCorta(p.fecha) + '</td>' +
             '<td class="cell-title">' + BudgetPDF.money(p.total) + '</td>' +
+            '<td class="hide-narrow">' + (p.vendido ? '<span style="color:var(--success);">' + Util.iconCheck() + '</span>' : '<span class="cell-sub">—</span>') + '</td>' +
             '<td class="col-actions">' +
+              '<button class="icon-btn" data-action="whatsapp" aria-label="Enviar por WhatsApp">' + Util.iconWhatsapp() + '</button>' +
+              '<button class="icon-btn" data-action="email" aria-label="Enviar por email">' + Util.iconMail() + '</button>' +
               '<button class="icon-btn" data-action="pdf" aria-label="Descargar PDF">' + Util.iconDoc() + '</button>' +
               '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">' + Util.iconTrash() + '</button>' +
             '</td>' +
@@ -449,6 +451,22 @@
         '</tbody>' +
       '</table></div>';
 
+    cont.querySelectorAll('[data-action="whatsapp"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.closest('tr').dataset.id;
+        var p = Store.presupuestos.get(id);
+        if (!p) return;
+        window.open(BudgetPDF.linkWhatsapp(p, Store.empresa.get()), '_blank');
+      });
+    });
+    cont.querySelectorAll('[data-action="email"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.closest('tr').dataset.id;
+        var p = Store.presupuestos.get(id);
+        if (!p) return;
+        window.location.href = BudgetPDF.linkEmail(p, Store.empresa.get());
+      });
+    });
     cont.querySelectorAll('[data-action="pdf"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.closest('tr').dataset.id;

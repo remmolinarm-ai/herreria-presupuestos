@@ -66,11 +66,21 @@
   function iconClock() {
     return '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10.5" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6.5V10.5L12.8 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
+  function iconWhatsapp() {
+    return '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 3a7 7 0 0 0-6 10.6L3 17l3.5-1a7 7 0 1 0 3.5-13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7.3 7.4c.2-.5.4-.5.6-.5h.4c.2 0 .4 0 .5.4l.5 1.2c.1.2 0 .4-.1.5l-.4.5c-.1.2-.1.3 0 .5.4.7 1.1 1.4 1.8 1.8.2.1.3.1.5 0l.5-.4c.1-.1.3-.2.5-.1l1.2.5c.3.1.4.3.4.5v.4c0 .2 0 .4-.5.6-.5.2-1 .3-1.6.1-1.4-.4-3-1.9-3.5-3.5-.2-.6-.1-1.1.1-1.6Z" fill="currentColor"/></svg>';
+  }
+  function iconMail() {
+    return '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4.5" width="15" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 5.5 10 10.5l6.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function iconCheck() {
+    return '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5 8 14.5 16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
 
   global.Util = {
     escapeHtml: escapeHtml, fechaCorta: fechaCorta, toast: toast, descargarBlob: descargarBlob,
     iconPencil: iconPencil, iconTrash: iconTrash, iconDoc: iconDoc,
     iconDownload: iconDownload, iconUpload: iconUpload, iconClose: iconClose,
-    iconCloud: iconCloud, iconDevice: iconDevice, iconClock: iconClock
+    iconCloud: iconCloud, iconDevice: iconDevice, iconClock: iconClock,
+    iconWhatsapp: iconWhatsapp, iconMail: iconMail, iconCheck: iconCheck
   };
 })(window);

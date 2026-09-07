@@ -164,6 +164,38 @@
     return doc.toBlob();
   }
 
+  // Mensaje para el cliente (WhatsApp / email): a propósito NO incluye el
+  // desglose de costos (materiales, mano de obra, margen, etc.) — eso es
+  // información interna del taller. Solo la descripción del trabajo y el
+  // número final, que es lo que le importa a quien pidió el presupuesto.
+  function mensajeCliente(presupuesto, empresa) {
+    var p = presupuesto || {};
+    var lineas = [];
+    lineas.push('Hola' + (p.cliente ? ' ' + p.cliente : '') + '!');
+    lineas.push('');
+    lineas.push('Te paso el presupuesto' + (p.categoriaNombre ? ' para "' + p.categoriaNombre + '"' : '') + ':');
+    lineas.push('');
+    lineas.push('Total: ' + money(p.total));
+    lineas.push('');
+    lineas.push('Cualquier consulta, escribime.');
+    if (empresa && empresa.nombre) lineas.push(empresa.nombre);
+    return lineas.join('\n');
+  }
+
+  function linkWhatsapp(presupuesto, empresa) {
+    var texto = encodeURIComponent(mensajeCliente(presupuesto, empresa));
+    var telefono = String((presupuesto && presupuesto.telefono) || '').replace(/[^0-9]/g, '');
+    return 'https://wa.me/' + telefono + '?text=' + texto;
+  }
+
+  function linkEmail(presupuesto, empresa) {
+    var p = presupuesto || {};
+    var asunto = encodeURIComponent('Presupuesto' + (p.categoriaNombre ? ' - ' + p.categoriaNombre : ''));
+    var cuerpo = encodeURIComponent(mensajeCliente(presupuesto, empresa));
+    var destinatario = encodeURIComponent(p.email || '');
+    return 'mailto:' + destinatario + '?subject=' + asunto + '&body=' + cuerpo;
+  }
+
   global.BudgetPDF = {
     generar: generarPDFPresupuesto,
     descargar: function (presupuesto, empresa) {
@@ -171,6 +203,9 @@
       var nombreArchivo = 'presupuesto-' + (presupuesto.numero || 's-n') + '.pdf';
       global.Util.descargarBlob(blob, nombreArchivo);
     },
-    money: money
+    money: money,
+    mensajeCliente: mensajeCliente,
+    linkWhatsapp: linkWhatsapp,
+    linkEmail: linkEmail
   };
 })(window);

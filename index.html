@@ -41,6 +41,9 @@
   <button class="nav-link" data-target="historial">
     <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10.5" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M10 6.5V10.5L12.8 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Historial</span>
   </button>
+  <button class="nav-link" data-target="ventas">
+    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 15.5 8 9l3 3 6-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 5h3.5v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Ventas</span>
+  </button>
   <button class="nav-link" data-target="ajustes">
     <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.8v2M10 15.2v2M17.2 10h-2M4.8 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3 4.9 4.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span>Ajustes</span>
   </button>
@@ -99,6 +102,15 @@
     <div id="historial-lista"></div>
   </section>
 
+  <!-- VENTAS -->
+  <section class="view" id="view-ventas" data-view="ventas">
+    <div class="view-head">
+      <h1>Ventas</h1>
+      <p>Buscá una cotización y marcala como vendida — ahí se descuenta el stock usado.</p>
+    </div>
+    <div id="ventas-container"></div>
+  </section>
+
   <!-- AJUSTES -->
   <section class="view" id="view-ajustes" data-view="ajustes">
     <div class="view-head">
@@ -143,6 +155,7 @@
 <script src="js/budget-pdf.js"></script>
 <script src="js/materiales.js"></script>
 <script src="js/presupuestos.js"></script>
+<script src="js/ventas.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/stock.js"></script>
 <script src="js/ajustes.js"></script>

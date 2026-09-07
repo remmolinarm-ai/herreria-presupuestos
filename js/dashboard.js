@@ -23,14 +23,27 @@
     return out;
   }
 
+  // Ventas confirmadas (marcadas como vendidas en la solapa Ventas),
+  // agrupadas por mes de venta — no todo presupuesto se vende, así que
+  // esto es distinto de "presupuestos generados por mes".
   function ventasPorMes() {
+    var mapa = {};
+    Store.presupuestos.getAll().forEach(function (p) {
+      if (!p.vendido || !p.fechaVenta) return;
+      var key = claveMes(p.fechaVenta);
+      if (!mapa[key]) mapa[key] = { total: 0, count: 0 };
+      mapa[key].total += Number(p.total) || 0;
+      mapa[key].count += 1;
+    });
+    return mapa;
+  }
+
+  function presupuestosPorMes() {
     var mapa = {};
     Store.presupuestos.getAll().forEach(function (p) {
       if (!p.fecha) return;
       var key = claveMes(p.fecha);
-      if (!mapa[key]) mapa[key] = { total: 0, count: 0 };
-      mapa[key].total += Number(p.total) || 0;
-      mapa[key].count += 1;
+      mapa[key] = (mapa[key] || 0) + 1;
     });
     return mapa;
   }
@@ -60,10 +73,11 @@
     var meses = mesesRecientes(6);
     var max = Math.max.apply(null, meses.map(function (m) { return (mapa[m.key] || {}).total || 0; }).concat([0]));
     return '<div class="card">' +
-      '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:14px;">Ventas por mes</h2>' +
+      '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:2px;">Ventas por mes</h2>' +
+      '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:12px;">Presupuestos marcados como vendidos en la solapa Ventas.</p>' +
       meses.map(function (m) {
         var d = mapa[m.key] || { total: 0, count: 0 };
-        return barraHTML(m.label, d.total, max, BudgetPDF.money(d.total) + ' · ' + d.count + (d.count === 1 ? ' presup.' : ' presup.'));
+        return barraHTML(m.label, d.total, max, BudgetPDF.money(d.total) + ' · ' + d.count + (d.count === 1 ? ' venta' : ' ventas'));
       }).join('') +
     '</div>';
   }
@@ -102,16 +116,16 @@
     var cont = document.getElementById('dashboard-container');
     if (!cont) return;
 
-    var mapa = ventasPorMes();
     var keyEsteMes = claveMes(new Date().toISOString());
-    var esteMes = mapa[keyEsteMes] || { total: 0, count: 0 };
+    var ventasEsteMes = ventasPorMes()[keyEsteMes] || { total: 0, count: 0 };
+    var presupuestosEsteMes = presupuestosPorMes()[keyEsteMes] || 0;
     var materiales = Store.materiales.getAll();
     var sinStock = materiales.filter(function (m) { return !(Number(m.stock) > 0); }).length;
 
     cont.innerHTML =
       '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">' +
-        statCard('Presupuestos este mes', esteMes.count) +
-        statCard('Facturado este mes', BudgetPDF.money(esteMes.total)) +
+        statCard('Presupuestos este mes', presupuestosEsteMes) +
+        statCard('Vendido este mes', BudgetPDF.money(ventasEsteMes.total)) +
         statCard('Materiales sin stock', sinStock) +
       '</div>' +
       seccionVentas() +

@@ -30,13 +30,15 @@ Funciona sin conexión y no depende de ninguna librería externa.
    última actualización.
 3. **Stock**: cargar entradas de stock nuevo — a mano (buscás el material,
    ponés cuánto entró) o con ayuda de una foto del remito (ver más abajo).
-   Al guardar un presupuesto, el stock del material vendido se descuenta
-   solo, convirtiendo la cantidad según cómo se vendió esa línea (si el
-   cotizador vendió por metro pero el material se stockea por barra
-   entera, descuenta la fracción de barra correspondiente). El stock
-   puede quedar en negativo — es solo un aviso visual (en rojo) de que
-   convendría revisarlo, no bloquea la venta.
-4. **Cotizador**: elegí cliente, describí el trabajo (texto libre) y
+   El stock se descuenta al **vender** (solapa Ventas), no al cotizar —
+   no todo presupuesto se convierte en venta. Convierte la cantidad según
+   cómo se vendió esa línea (si se vendió por metro pero el material se
+   stockea por barra entera, descuenta la fracción de barra
+   correspondiente). Puede quedar en negativo — es solo un aviso visual
+   (en rojo), no bloquea nada.
+4. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
+   poder mandarle el presupuesto después), describí el trabajo (texto
+   libre) y
    sumá los materiales que se van a usar con su cantidad. El presupuesto
    se calcula por capas, cada una sobre el subtotal acumulado:
 
@@ -63,12 +65,22 @@ Funciona sin conexión y no depende de ninguna librería externa.
    lo que ve el cliente final. Al guardar, genera y descarga
    automáticamente el PDF con el desglose completo.
 5. **Historial**: todos los presupuestos guardados, con opción de volver a
-   descargar el PDF o eliminarlos.
-6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+   descargar el PDF, eliminarlos, o **enviarlos por WhatsApp o email** al
+   cliente — abre WhatsApp/el programa de mail con un mensaje ya escrito
+   (no hace falta backend ni cuesta nada: son los links `wa.me` y
+   `mailto:` de toda la vida). Ese mensaje, a propósito, **no** incluye el
+   desglose de costos del PDF interno — solo dice la descripción del
+   trabajo y el total final, que es lo único que le importa a quien pidió
+   el presupuesto.
+6. **Ventas**: buscá una cotización (por cliente o número) y marcala como
+   vendida — ahí recién se descuenta el stock (ver Stock arriba). Abajo
+   queda la lista de ventas confirmadas, con opción de deshacer (repone
+   el stock).
+7. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos y datos de la empresa) en un archivo `.json`.
-7. **Botón de chat**: preguntá el precio de un material por nombre o
+8. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -298,6 +310,7 @@ js/
   budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
   materiales.js         Pantalla Lista de precios
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
+  ventas.js             Pantalla Ventas (marcar cotización como vendida)
   dashboard.js          Pantalla Dashboard (ventas por mes, stock por grupo)
   stock.js              Pantalla Stock (carga a mano + OCR de remitos)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
