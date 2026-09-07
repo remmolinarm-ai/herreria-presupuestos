@@ -71,7 +71,8 @@ h1, h2, h3, p { margin: 0; }
   flex-shrink: 0;
 }
 .nav-toggle:hover { background: var(--surface-alt); }
-.app-title { font-weight: 800; font-size: 1rem; letter-spacing: -0.01em; flex: 1; color: var(--brand-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-title { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; letter-spacing: -0.01em; flex: 1; color: var(--brand-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-logo { display: block; flex-shrink: 0; }
 .app-sync-badge {
   display: inline-flex;
   align-items: center;

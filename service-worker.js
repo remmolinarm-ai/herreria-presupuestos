@@ -1,5 +1,5 @@
 /* Cache-first para poder abrir y usar la app sin conexión en el taller. */
-var CACHE_NAME = 'presupuestador-v11';
+var CACHE_NAME = 'presupuestador-v12';
 var APP_SHELL = [
   './',
   './index.html',
@@ -19,7 +19,8 @@ var APP_SHELL = [
   './js/app.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/icon-maskable-512.png'
+  './icons/icon-maskable-512.png',
+  './icons/logo-mark.png'
 ];
 
 self.addEventListener('install', function (event) {
