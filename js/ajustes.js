@@ -11,7 +11,7 @@
     if (user) {
       return '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
           'Conectado como <strong>' + Util.escapeHtml(user.email || '') + '</strong>. ' +
-          'Los materiales, trabajos y presupuestos se sincronizan solos con cualquier otro dispositivo donde inicies sesión con esta misma cuenta.' +
+          'Los materiales y presupuestos se sincronizan solos con cualquier otro dispositivo donde inicies sesión con esta misma cuenta.' +
         '</p>' +
         '<button class="btn btn-outline btn-block" id="aj-auth-btn" data-action="salir">Cerrar sesión</button>';
     }
@@ -58,10 +58,12 @@
       '</div>' +
 
       '<div class="card">' +
-        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Estructura de costos</h2>' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Estructura de costos (valores por defecto)</h2>' +
         '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
-          'Porcentajes que se suman en cascada sobre materiales + mano de obra en todos los presupuestos. Dejá en 0 la que no uses — no aparece en el presupuesto.' +
+          'Precargan cada presupuesto nuevo, pero se pueden cambiar en cada cotización. Dejá en 0 la que no uses — no aparece en el presupuesto.' +
         '</p>' +
+        '<div class="field"><label for="aj-mano-obra">Mano de obra (%)</label>' +
+          '<input class="input" id="aj-mano-obra" type="number" min="0" step="0.1" value="' + (e.manoObraPorcentajeDefault || 0) + '"></div>' +
         '<div class="field-row">' +
           '<div class="field"><label for="aj-cif">Costos indirectos de fabricación (%)</label>' +
             '<input class="input" id="aj-cif" type="number" min="0" step="0.1" value="' + (e.cifPorcentaje || 0) + '"></div>' +
@@ -116,6 +118,7 @@
         return isNaN(v) || v < 0 ? 0 : v;
       }
       Store.empresa.save(Object.assign({}, Store.empresa.get(), {
+        manoObraPorcentajeDefault: pct('aj-mano-obra'),
         cifPorcentaje: pct('aj-cif'),
         gastosAdminPorcentaje: pct('aj-gastos-admin'),
         margenPorcentaje: pct('aj-margen'),
@@ -138,7 +141,7 @@
     document.getElementById('aj-importar-file').addEventListener('change', function (ev) {
       var file = ev.target.files[0];
       if (!file) return;
-      if (!confirm('Importar reemplaza los materiales, tipos de trabajo, presupuestos y datos de la empresa guardados en este dispositivo por los del archivo. ¿Continuar?')) {
+      if (!confirm('Importar reemplaza los materiales, presupuestos y datos de la empresa guardados en este dispositivo por los del archivo. ¿Continuar?')) {
         ev.target.value = '';
         return;
       }

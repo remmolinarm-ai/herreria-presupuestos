@@ -106,6 +106,7 @@
       nombre: '', telefono: '', direccion: '',
       condiciones: 'Presupuesto válido por 15 días. No incluye instalación salvo que se indique. Se solicita anticipo del 50% para reservar materiales.',
       proximoNumero: 1,
+      manoObraPorcentajeDefault: 0,
       cifPorcentaje: 0,
       gastosAdminPorcentaje: 0,
       margenPorcentaje: 0,

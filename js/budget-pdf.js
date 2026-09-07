@@ -65,8 +65,8 @@
     // ---- Datos del cliente / obra ----
     if (presupuesto.cliente) { doc.text(pageIdx, MARGIN.left, y, 'Cliente: ' + presupuesto.cliente, { size: 10 }); y += LINE_H; }
     if (presupuesto.obra) { doc.text(pageIdx, MARGIN.left, y, 'Obra / Dirección: ' + presupuesto.obra, { size: 10 }); y += LINE_H; }
-    doc.text(pageIdx, MARGIN.left, y, 'Tipo de trabajo: ' + (presupuesto.categoriaNombre || '-') + '  (mano de obra ' + (presupuesto.porcentaje || 0) + '%)', { size: 10 });
-    y += LINE_H + 10;
+    if (presupuesto.categoriaNombre) { doc.text(pageIdx, MARGIN.left, y, 'Trabajo: ' + presupuesto.categoriaNombre, { size: 10 }); y += LINE_H; }
+    y += 10;
 
     // ---- Tabla de materiales ----
     drawTableHeader();

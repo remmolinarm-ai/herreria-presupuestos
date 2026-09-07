@@ -3,7 +3,6 @@
 
   var REFRESH = {
     materiales: function () { VistaMateriales.renderLista(); },
-    categorias: function () { VistaCategorias.renderLista(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
     ajustes: function () { VistaAjustes.init(); }
@@ -34,7 +33,6 @@
 
   function refrescarTodo() {
     VistaMateriales.renderLista();
-    VistaCategorias.renderLista();
     VistaNuevo.init();
     VistaHistorial.renderLista();
     VistaAjustes.init();
@@ -49,10 +47,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    Store.ensureSeed();
-
     VistaMateriales.init();
-    VistaCategorias.init();
     VistaNuevo.init();
     VistaHistorial.init();
     VistaAjustes.init();
@@ -63,7 +58,6 @@
     // iniciar sesión) para refrescar la pantalla ante cualquier cambio,
     // sea de este dispositivo o de otro sincronizado por la nube.
     Store.subscribe('materiales', function () { VistaMateriales.renderLista(); VistaNuevo.render(); });
-    Store.subscribe('categorias', function () { VistaCategorias.renderLista(); VistaNuevo.render(); });
     Store.subscribe('presupuestos', function () { VistaHistorial.renderLista(); });
     Store.subscribe('empresa', function () { VistaAjustes.init(); });
 

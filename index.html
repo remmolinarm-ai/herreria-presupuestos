@@ -29,9 +29,6 @@
   <button class="nav-link" data-target="materiales" aria-current="page">
     <span class="nav-icon" aria-hidden="true">📋</span><span>Materiales</span>
   </button>
-  <button class="nav-link" data-target="categorias">
-    <span class="nav-icon" aria-hidden="true">🏷️</span><span>Trabajos</span>
-  </button>
   <button class="nav-link" data-target="nuevo">
     <span class="nav-icon" aria-hidden="true">🧮</span><span>Presupuestar</span>
   </button>
@@ -59,24 +56,11 @@
     <div id="mat-lista"></div>
   </section>
 
-  <!-- CATEGORIAS -->
-  <section class="view" id="view-categorias" data-view="categorias">
-    <div class="view-head">
-      <h1>Tipos de trabajo</h1>
-      <p>La mano de obra se calcula como un porcentaje del costo de materiales, según el tipo de trabajo.</p>
-    </div>
-    <div class="toolbar">
-      <button class="btn btn-primary" id="cat-nuevo-btn">+ Tipo de trabajo</button>
-    </div>
-    <div id="cat-form-container"></div>
-    <div id="cat-lista"></div>
-  </section>
-
   <!-- NUEVO PRESUPUESTO -->
   <section class="view" id="view-nuevo" data-view="nuevo">
     <div class="view-head">
       <h1>Nuevo presupuesto</h1>
-      <p>Elegí el tipo de trabajo y sumá los materiales que vas a usar.</p>
+      <p>Sumá los materiales y definí los porcentajes de costo de esta cotización.</p>
     </div>
     <div id="nuevo-presupuesto"></div>
   </section>
@@ -131,7 +115,6 @@
 <script src="js/pdf-lite.js"></script>
 <script src="js/budget-pdf.js"></script>
 <script src="js/materiales.js"></script>
-<script src="js/categorias.js"></script>
 <script src="js/presupuestos.js"></script>
 <script src="js/ajustes.js"></script>
 <script src="js/asistente.js"></script>

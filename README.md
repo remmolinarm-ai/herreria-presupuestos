@@ -1,28 +1,21 @@
 # REM - Cotizaciones
 
 App web instalable (PWA) para cargar la lista de precios de materiales y
-armar presupuestos, calculando la mano de obra como un porcentaje del costo
-de materiales según el tipo de trabajo. Funciona sin conexión y no depende
-de ninguna librería externa.
+armar presupuestos con la estructura de costos de una metalmecánica.
+Funciona sin conexión y no depende de ninguna librería externa.
 
 ## Cómo usar la app
 
 1. **Materiales**: cargá cada material con su unidad (m, kg, unidad…) y
    precio. Se puede editar en cualquier momento; queda registrada la fecha
    de la última actualización.
-2. **Trabajos**: tipos de trabajo con su % de mano de obra sobre el costo
-   de materiales. Viene precargada con 8 categorías típicas de herrería
-   (Portones 35%, Rejas 30%, Barandas 40%, Escaleras 35%, Estructuras 25%,
-   Herrería artística 60%, Muebles a medida 45%, Reparaciones 55%) — son
-   solo un punto de partida, se editan o se borran libremente.
-3. **Presupuestar**: elegí cliente, tipo de trabajo, y sumá los materiales
-   que se van a usar con su cantidad. La app calcula el presupuesto con la
-   estructura de costos de una metalmecánica, por capas (cada una sobre el
-   subtotal acumulado):
+2. **Presupuestar**: elegí cliente, describí el trabajo (texto libre) y
+   sumá los materiales que se van a usar con su cantidad. El presupuesto
+   se calcula por capas, cada una sobre el subtotal acumulado:
 
    ```
    Materiales directos
-   + Mano de obra directa (% por tipo de trabajo)
+   + Mano de obra directa
    = Costo de producción
    + Costos indirectos de fabricación (CIF)
    + Gastos de administración y comercialización
@@ -33,17 +26,19 @@ de ninguna librería externa.
    = Total
    ```
 
-   Las 4 últimas capas (CIF, Gastos admin., Margen, IVA) son porcentajes
-   globales que se configuran una sola vez en **Ajustes → Estructura de
-   costos** y se aplican a todos los presupuestos; dejando una en 0 no
-   aparece en el presupuesto ni en el PDF. Al guardar, genera y descarga
-   automáticamente el PDF con el desglose completo.
-4. **Historial**: todos los presupuestos guardados, con opción de volver a
+   Los 5 porcentajes (Mano de obra, CIF, Gastos admin., Margen, IVA) se
+   cargan directo en cada presupuesto — vienen precargados con los
+   valores por defecto de **Ajustes → Estructura de costos**, pero se
+   pueden cambiar libremente para esa cotización puntual. Dejar uno en 0
+   hace que no aparezca ni en el presupuesto ni en el PDF. Al guardar,
+   genera y descarga automáticamente el PDF con el desglose completo.
+3. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF o eliminarlos.
-5. **Ajustes**: datos de la empresa (aparecen en el PDF) y botones para
-   exportar/importar una copia de seguridad completa (materiales,
-   trabajos, presupuestos y datos de la empresa) en un archivo `.json`.
-6. **Botón de chat (💬)**: preguntá el precio de un material por nombre o
+4. **Ajustes**: datos de la empresa (aparecen en el PDF), los valores por
+   defecto de la estructura de costos, y botones para exportar/importar
+   una copia de seguridad completa (materiales, presupuestos y datos de
+   la empresa) en un archivo `.json`.
+5. **Botón de chat (💬)**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -64,8 +59,8 @@ La app ya está conectada al proyecto Firebase **carpinteria-metalica-c2c15**
 - **Sin iniciar sesión**: todo se guarda solo en este dispositivo
   (`localStorage`), igual que antes.
 - **Iniciando sesión con Google** (botón en **Ajustes → Sincronización
-  entre dispositivos**): los materiales, tipos de trabajo, presupuestos y
-  datos de la empresa se guardan en Firestore y se sincronizan solos con
+  entre dispositivos**): los materiales, presupuestos y datos de la
+  empresa se guardan en Firestore y se sincronizan solos con
   cualquier otro dispositivo donde se inicie sesión con esa misma cuenta
   de Google — sigue funcionando sin conexión (Firestore cachea localmente
   y sube los cambios cuando vuelve el internet).
@@ -215,7 +210,6 @@ js/
   pdf-lite.js           Generador de PDF genérico, sin dependencias
   budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
   materiales.js         Pantalla Lista de precios
-  categorias.js         Pantalla Tipos de trabajo
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
   asistente.js          Buscador de precios en lenguaje natural

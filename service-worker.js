@@ -1,5 +1,5 @@
 /* Cache-first para poder abrir y usar la app sin conexión en el taller. */
-var CACHE_NAME = 'presupuestador-v8';
+var CACHE_NAME = 'presupuestador-v9';
 var APP_SHELL = [
   './',
   './index.html',
@@ -11,7 +11,6 @@ var APP_SHELL = [
   './js/pdf-lite.js',
   './js/budget-pdf.js',
   './js/materiales.js',
-  './js/categorias.js',
   './js/presupuestos.js',
   './js/ajustes.js',
   './js/asistente.js',

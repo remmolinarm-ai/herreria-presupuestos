@@ -5,7 +5,16 @@
   var estado = null;
 
   function estadoInicial() {
-    return { cliente: '', obra: '', categoriaId: '', notas: '', items: [] };
+    var empresa = Store.empresa.get();
+    return {
+      cliente: '', obra: '', descripcionTrabajo: '',
+      manoObraPorcentaje: Number(empresa.manoObraPorcentajeDefault) || 0,
+      cifPorcentaje: Number(empresa.cifPorcentaje) || 0,
+      gastosAdminPorcentaje: Number(empresa.gastosAdminPorcentaje) || 0,
+      margenPorcentaje: Number(empresa.margenPorcentaje) || 0,
+      ivaPorcentaje: Number(empresa.ivaPorcentaje) || 0,
+      notas: '', items: []
+    };
   }
 
   function normalizar(str) {
@@ -26,21 +35,19 @@
    *     + Gastos de administración/comercialización = Costo total
    *       + Margen de utilidad = Precio de venta
    *         + IVA = Total
-   * CIF, Gastos admin., Margen e IVA son porcentajes globales (Ajustes);
-   * la Mano de obra sigue siendo % por tipo de trabajo, como ya estaba.
+   * Los 5 porcentajes se cargan directo en este presupuesto (precargados
+   * con los valores por defecto de Ajustes, pero editables acá).
    */
   function calcularTotales() {
     var totalMateriales = estado.items.reduce(function (a, i) { return a + i.subtotal; }, 0);
-    var categoria = estado.categoriaId ? Store.categorias.get(estado.categoriaId) : null;
-    var porcentaje = categoria ? categoria.porcentaje : 0;
+    var porcentaje = Number(estado.manoObraPorcentaje) || 0;
     var manoObra = totalMateriales * porcentaje / 100;
     var costoProduccion = totalMateriales + manoObra;
 
-    var empresa = Store.empresa.get();
-    var cifPorcentaje = Number(empresa.cifPorcentaje) || 0;
-    var gastosAdminPorcentaje = Number(empresa.gastosAdminPorcentaje) || 0;
-    var margenPorcentaje = Number(empresa.margenPorcentaje) || 0;
-    var ivaPorcentaje = Number(empresa.ivaPorcentaje) || 0;
+    var cifPorcentaje = Number(estado.cifPorcentaje) || 0;
+    var gastosAdminPorcentaje = Number(estado.gastosAdminPorcentaje) || 0;
+    var margenPorcentaje = Number(estado.margenPorcentaje) || 0;
+    var ivaPorcentaje = Number(estado.ivaPorcentaje) || 0;
 
     var cif = costoProduccion * cifPorcentaje / 100;
     var costoConCif = costoProduccion + cif;
@@ -61,20 +68,31 @@
       gastosAdminPorcentaje: gastosAdminPorcentaje, gastosAdmin: gastosAdmin,
       margenPorcentaje: margenPorcentaje, margen: margen,
       ivaPorcentaje: ivaPorcentaje, iva: iva,
-      total: total,
-      categoria: categoria
+      total: total
     };
+  }
+
+  function totalsBoxHTML(t) {
+    return (
+      '<div class="totals-row"><span>Materiales</span><span>' + BudgetPDF.money(t.totalMateriales) + '</span></div>' +
+      '<div class="totals-row"><span>Mano de obra (' + t.porcentaje + '%)</span><span>' + BudgetPDF.money(t.manoObra) + '</span></div>' +
+      (t.cifPorcentaje > 0 ? '<div class="totals-row"><span>Costos indirectos de fabricación (' + t.cifPorcentaje + '%)</span><span>' + BudgetPDF.money(t.cif) + '</span></div>' : '') +
+      (t.gastosAdminPorcentaje > 0 ? '<div class="totals-row"><span>Gastos de administración y comercialización (' + t.gastosAdminPorcentaje + '%)</span><span>' + BudgetPDF.money(t.gastosAdmin) + '</span></div>' : '') +
+      (t.margenPorcentaje > 0 ? '<div class="totals-row"><span>Margen de utilidad (' + t.margenPorcentaje + '%)</span><span>' + BudgetPDF.money(t.margen) + '</span></div>' : '') +
+      (t.ivaPorcentaje > 0 ? '<div class="totals-row"><span>IVA (' + t.ivaPorcentaje + '%)</span><span>' + BudgetPDF.money(t.iva) + '</span></div>' : '') +
+      '<div class="totals-row total"><span>Total</span><span>' + BudgetPDF.money(t.total) + '</span></div>'
+    );
+  }
+
+  function actualizarTotales() {
+    var box = document.getElementById('np-totals');
+    if (box) box.innerHTML = totalsBoxHTML(calcularTotales());
   }
 
   function renderNuevo() {
     var cont = document.getElementById('nuevo-presupuesto');
-    var categorias = Store.categorias.getAll().sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
     var materiales = Store.materiales.getAll().sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); });
 
-    if (categorias.length === 0) {
-      cont.innerHTML = '<p class="empty-state">Antes de presupuestar, cargá al menos un tipo de trabajo en la pestaña "Trabajos".</p>';
-      return;
-    }
     if (materiales.length === 0) {
       cont.innerHTML = '<p class="empty-state">Antes de presupuestar, cargá materiales con su precio en la pestaña "Materiales".</p>';
       return;
@@ -88,13 +106,27 @@
           '<input class="input" id="np-cliente" placeholder="Nombre del cliente" value="' + Util.escapeHtml(estado.cliente) + '"></div>' +
         '<div class="field"><label for="np-obra">Obra / Dirección</label>' +
           '<input class="input" id="np-obra" placeholder="Opcional" value="' + Util.escapeHtml(estado.obra) + '"></div>' +
-        '<div class="field"><label for="np-categoria">Tipo de trabajo</label>' +
-          '<select class="input" id="np-categoria">' +
-            '<option value="">Elegir…</option>' +
-            categorias.map(function (c) {
-              return '<option value="' + c.id + '"' + (c.id === estado.categoriaId ? ' selected' : '') + '>' + Util.escapeHtml(c.nombre) + ' (' + c.porcentaje + '%)</option>';
-            }).join('') +
-          '</select></div>' +
+        '<div class="field"><label for="np-descripcion">Descripción del trabajo</label>' +
+          '<input class="input" id="np-descripcion" placeholder="Ej: Portón corredizo 4x2m" value="' + Util.escapeHtml(estado.descripcionTrabajo) + '"></div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<h2 style="font-size:0.92rem;font-weight:700;margin-bottom:2px;">Estructura de costos</h2>' +
+        '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:10px;">Precargada con los valores por defecto de Ajustes — se puede cambiar solo para este presupuesto.</p>' +
+        '<div class="field"><label for="np-mano-obra">Mano de obra (%)</label>' +
+          '<input class="input" id="np-mano-obra" type="number" min="0" step="0.1" value="' + estado.manoObraPorcentaje + '"></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="np-cif">Costos indirectos (CIF %)</label>' +
+            '<input class="input" id="np-cif" type="number" min="0" step="0.1" value="' + estado.cifPorcentaje + '"></div>' +
+          '<div class="field"><label for="np-gastos-admin">Gastos admin. (%)</label>' +
+            '<input class="input" id="np-gastos-admin" type="number" min="0" step="0.1" value="' + estado.gastosAdminPorcentaje + '"></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="np-margen">Margen de utilidad (%)</label>' +
+            '<input class="input" id="np-margen" type="number" min="0" step="0.1" value="' + estado.margenPorcentaje + '"></div>' +
+          '<div class="field"><label for="np-iva">IVA (%)</label>' +
+            '<input class="input" id="np-iva" type="number" min="0" step="0.1" value="' + estado.ivaPorcentaje + '"></div>' +
+        '</div>' +
       '</div>' +
 
       '<div class="card">' +
@@ -127,15 +159,7 @@
         '</div>' +
       '</div>' +
 
-      '<div class="totals-box">' +
-        '<div class="totals-row"><span>Materiales</span><span>' + BudgetPDF.money(t.totalMateriales) + '</span></div>' +
-        '<div class="totals-row"><span>Mano de obra (' + t.porcentaje + '%)</span><span>' + BudgetPDF.money(t.manoObra) + '</span></div>' +
-        (t.cifPorcentaje > 0 ? '<div class="totals-row"><span>Costos indirectos de fabricación (' + t.cifPorcentaje + '%)</span><span>' + BudgetPDF.money(t.cif) + '</span></div>' : '') +
-        (t.gastosAdminPorcentaje > 0 ? '<div class="totals-row"><span>Gastos de administración y comercialización (' + t.gastosAdminPorcentaje + '%)</span><span>' + BudgetPDF.money(t.gastosAdmin) + '</span></div>' : '') +
-        (t.margenPorcentaje > 0 ? '<div class="totals-row"><span>Margen de utilidad (' + t.margenPorcentaje + '%)</span><span>' + BudgetPDF.money(t.margen) + '</span></div>' : '') +
-        (t.ivaPorcentaje > 0 ? '<div class="totals-row"><span>IVA (' + t.ivaPorcentaje + '%)</span><span>' + BudgetPDF.money(t.iva) + '</span></div>' : '') +
-        '<div class="totals-row total"><span>Total</span><span>' + BudgetPDF.money(t.total) + '</span></div>' +
-      '</div>' +
+      '<div class="totals-box" id="np-totals">' + totalsBoxHTML(t) + '</div>' +
 
       '<div class="card">' +
         '<div class="field"><label for="np-notas">Notas (opcional)</label>' +
@@ -148,10 +172,20 @@
 
     document.getElementById('np-cliente').addEventListener('input', function (e) { estado.cliente = e.target.value; });
     document.getElementById('np-obra').addEventListener('input', function (e) { estado.obra = e.target.value; });
+    document.getElementById('np-descripcion').addEventListener('input', function (e) { estado.descripcionTrabajo = e.target.value; });
     document.getElementById('np-notas').addEventListener('input', function (e) { estado.notas = e.target.value; });
-    document.getElementById('np-categoria').addEventListener('change', function (e) {
-      estado.categoriaId = e.target.value;
-      renderNuevo();
+
+    [
+      ['np-mano-obra', 'manoObraPorcentaje'],
+      ['np-cif', 'cifPorcentaje'],
+      ['np-gastos-admin', 'gastosAdminPorcentaje'],
+      ['np-margen', 'margenPorcentaje'],
+      ['np-iva', 'ivaPorcentaje']
+    ].forEach(function (par) {
+      document.getElementById(par[0]).addEventListener('input', function (e) {
+        estado[par[1]] = parseFloat(e.target.value) || 0;
+        actualizarTotales();
+      });
     });
 
     // ---- Autocompletado de materiales ----
@@ -250,7 +284,6 @@
     });
 
     document.getElementById('np-guardar').addEventListener('click', function () {
-      if (!estado.categoriaId) { Util.toast('Elegí el tipo de trabajo'); return; }
       if (estado.items.length === 0) { Util.toast('Agregá al menos un material'); return; }
 
       var totales = calcularTotales();
@@ -266,8 +299,7 @@
           fecha: Store.nowISO(),
           cliente: estado.cliente.trim(),
           obra: estado.obra.trim(),
-          categoriaId: estado.categoriaId,
-          categoriaNombre: totales.categoria ? totales.categoria.nombre : '',
+          categoriaNombre: estado.descripcionTrabajo.trim(),
           porcentaje: totales.porcentaje,
           items: estado.items,
           totalMateriales: totales.totalMateriales,
@@ -301,6 +333,20 @@
   function initNuevo() {
     estado = estadoInicial();
     renderNuevo();
+
+    // Si cambian los valores por defecto en Ajustes mientras el presupuesto
+    // en curso todavía está vacío (no se empezó a cargar nada), lo
+    // refresca — así no hace falta recargar la página para verlos.
+    Store.subscribe('empresa', function () {
+      if (estado.items.length > 0) return;
+      var empresa = Store.empresa.get();
+      estado.manoObraPorcentaje = Number(empresa.manoObraPorcentajeDefault) || 0;
+      estado.cifPorcentaje = Number(empresa.cifPorcentaje) || 0;
+      estado.gastosAdminPorcentaje = Number(empresa.gastosAdminPorcentaje) || 0;
+      estado.margenPorcentaje = Number(empresa.margenPorcentaje) || 0;
+      estado.ivaPorcentaje = Number(empresa.ivaPorcentaje) || 0;
+      renderNuevo();
+    });
   }
 
   // ============ Historial ============
@@ -315,7 +361,7 @@
 
     cont.innerHTML =
       '<div class="table-wrap"><table class="data-table">' +
-        '<thead><tr><th>N°</th><th>Cliente</th><th class="hide-narrow">Tipo de trabajo</th><th class="hide-narrow">Fecha</th><th>Total</th><th></th></tr></thead>' +
+        '<thead><tr><th>N°</th><th>Cliente</th><th class="hide-narrow">Trabajo</th><th class="hide-narrow">Fecha</th><th>Total</th><th></th></tr></thead>' +
         '<tbody>' +
         lista.map(function (p) {
           return '<tr data-id="' + p.id + '">' +
