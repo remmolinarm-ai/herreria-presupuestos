@@ -4,7 +4,6 @@
   var REFRESH = {
     dashboard: function () { VistaDashboard.render(); },
     materiales: function () { VistaMateriales.renderLista(); },
-    stock: function () { VistaStock.render(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
     ventas: function () { VistaVentas.render(); },
@@ -37,7 +36,6 @@
   function refrescarTodo() {
     VistaDashboard.render();
     VistaMateriales.renderLista();
-    VistaStock.render();
     VistaNuevo.init();
     VistaHistorial.renderLista();
     VistaVentas.render();
@@ -55,7 +53,6 @@
   document.addEventListener('DOMContentLoaded', function () {
     VistaDashboard.init();
     VistaMateriales.init();
-    VistaStock.init();
     VistaNuevo.init();
     VistaHistorial.init();
     VistaVentas.init();
@@ -68,7 +65,6 @@
     // sea de este dispositivo o de otro sincronizado por la nube.
     Store.subscribe('materiales', function () {
       VistaMateriales.renderLista();
-      VistaStock.render();
       VistaDashboard.render();
       VistaNuevo.render();
     });

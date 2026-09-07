@@ -11,13 +11,14 @@ Funciona sin conexión y no depende de ninguna librería externa.
    proceso** (cuántos trabajos vendidos hay en cada etapa: Corte,
    Soldadura, Pintura, Terminado), y stock por grupo de materiales
    (cuántos materiales de cada grupo están sin stock cargado).
-2. **Materiales**: cargá cada material con su unidad (m, kg, unidad, chapa,
-   barra…), un **grupo** opcional para organizarlos (ej: Ángulos, Chapas,
-   Pintura — se usa en el Dashboard y al importar desde Sheets) y su
-   **stock actual**. Los precios se cargan **en dólares** (no se
-   desactualizan con la inflación) y se muestran siempre junto a su
-   equivalente en pesos, según la cotización del dólar oficial (ver
-   Ajustes). Hay dos formas de cargar el precio:
+2. **Materiales**: lista de precios y stock, todo junto. Cargá cada
+   material con su unidad (m, kg, unidad, chapa, barra…), un **grupo**
+   opcional para organizarlos (ej: Ángulos, Chapas, Pintura — se usa en
+   el Dashboard y al importar desde Sheets) y su **stock actual**. Los
+   precios se cargan **en dólares** (no se desactualizan con la
+   inflación) y se muestran siempre junto a su equivalente en pesos,
+   según la cotización del dólar oficial (ver Ajustes). Hay dos formas
+   de cargar el precio:
    - **Por peso** (para barras y chapas): completá cuántas unidades de
      medida tiene la pieza completa (ej: 6 metros por barra — dejalo en
      blanco si no aplica, como en una chapa), el peso de esa pieza en kg y
@@ -29,16 +30,16 @@ Funciona sin conexión y no depende de ninguna librería externa.
      insumos, etc.), cargá directamente el precio en dólares por unidad.
 
    Se puede editar en cualquier momento; queda registrada la fecha de la
-   última actualización.
-3. **Stock**: cargar entradas de stock nuevo — a mano (buscás el material,
-   ponés cuánto entró) o con ayuda de una foto del remito (ver más abajo).
-   El stock se descuenta al **vender** (solapa Ventas), no al cotizar —
-   no todo presupuesto se convierte en venta. Convierte la cantidad según
-   cómo se vendió esa línea (si se vendió por metro pero el material se
-   stockea por barra entera, descuenta la fracción de barra
-   correspondiente). Puede quedar en negativo — es solo un aviso visual
-   (en rojo), no bloquea nada.
-4. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
+   última actualización. El botón **"Cargar stock"** despliega las
+   herramientas para sumar stock nuevo sin salir de la pantalla — a mano
+   (buscás el material, ponés cuánto entró) o con ayuda de una foto del
+   remito (ver más abajo). El stock se descuenta al **vender** (solapa
+   Ventas), no al cotizar — no todo presupuesto se convierte en venta.
+   Convierte la cantidad según cómo se vendió esa línea (si se vendió
+   por metro pero el material se stockea por barra entera, descuenta la
+   fracción de barra correspondiente). Puede quedar en negativo — es
+   solo un aviso visual (en rojo), no bloquea nada.
+3. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
    poder mandarle el presupuesto después), describí el trabajo (texto
    libre) y
    sumá los materiales que se van a usar con su cantidad. El presupuesto
@@ -66,7 +67,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
    muestran en pesos (con el equivalente en dólares al lado) porque es
    lo que ve el cliente final. Al guardar, genera y descarga
    automáticamente el PDF con el desglose completo.
-5. **Historial**: todos los presupuestos guardados, con opción de volver a
+4. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF, eliminarlos, o **enviarlos por WhatsApp o email** al
    cliente — abre WhatsApp/el programa de mail con un mensaje ya escrito
    (no hace falta backend ni cuesta nada: son los links `wa.me` y
@@ -74,20 +75,20 @@ Funciona sin conexión y no depende de ninguna librería externa.
    desglose de costos del PDF interno — solo dice la descripción del
    trabajo y el total final, que es lo único que le importa a quien pidió
    el presupuesto.
-6. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
+5. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
    ponele una fecha estimada de entrega, y marcala como vendida — ahí
-   recién se descuenta el stock (ver Stock arriba). Abajo queda la lista
-   de ventas confirmadas con el **seguimiento del proceso productivo**:
+   recién se descuenta el stock (ver Materiales arriba). Abajo queda la
+   lista de ventas confirmadas con el **seguimiento del proceso productivo**:
    un selector de etapa (Corte → Soldadura → Pintura → Terminado →
    Entregado, se va actualizando a mano a medida que avanza el trabajo)
    y la fecha estimada de entrega, editable — si esa fecha ya pasó y el
    trabajo no está "Entregado", se marca como **Atrasado**. También hay
    opción de deshacer la venta (repone el stock).
-7. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos y datos de la empresa) en un archivo `.json`.
-8. **Botón de chat**: preguntá el precio de un material por nombre o
+7. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -210,9 +211,9 @@ comprobar:
    las reglas de seguridad se hayan publicado (paso anterior) y que haya
    conexión a internet en ese momento.
 
-## Stock: carga a mano y foto del remito (OCR)
+## Cargar stock: a mano y foto del remito (OCR)
 
-En **Stock** se puede cargar stock nuevo de dos formas:
+En **Materiales → Cargar stock** se puede sumar stock nuevo de dos formas:
 
 - **A mano**: buscás el material (igual que en el cotizador) y ponés
   cuánto entró. Se arma una lista de lo que vas cargando y se confirma
@@ -315,11 +316,11 @@ js/
                          kg, pieza entera, por metro) en USD
   pdf-lite.js           Generador de PDF genérico, sin dependencias
   budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
-  materiales.js         Pantalla Lista de precios
+  materiales.js         Pantalla Materiales (lista de precios + stock,
+                         con carga a mano y OCR de remitos)
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
   ventas.js             Pantalla Ventas (marcar cotización como vendida)
   dashboard.js          Pantalla Dashboard (ventas por mes, stock por grupo)
-  stock.js              Pantalla Stock (carga a mano + OCR de remitos)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
   asistente.js          Buscador de precios en lenguaje natural
   app.js                Navegación entre pantallas e inicialización
