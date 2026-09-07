@@ -106,6 +106,7 @@
       nombre: '', telefono: '', direccion: '',
       condiciones: 'Presupuesto válido por 15 días. No incluye instalación salvo que se indique. Se solicita anticipo del 50% para reservar materiales.',
       proximoNumero: 1,
+      proximoNumeroOT: 1,
       costosDirectosProyectoPorcentajeDefault: 0,
       ingenieriaDisenoPorcentajeDefault: 0,
       cifPorcentaje: 0,
@@ -113,7 +114,9 @@
       margenPorcentaje: 0,
       ivaPorcentaje: 0,
       dolarOficial: 0,
-      dolarActualizado: null
+      dolarActualizado: null,
+      etapasProduccion: ['Corte', 'Soldadura', 'Pintura', 'Terminado', 'Entregado'],
+      causasParada: ['Falta de material', 'Rotura de máquina', 'Falta de personal', 'Espera de aprobación del cliente', 'Otro']
     };
 
     return {
@@ -127,6 +130,16 @@
             var data = doc.exists ? doc.data() : {};
             var numero = data.proximoNumero || 1;
             tx.set(ref, Object.assign({}, data, { proximoNumero: numero + 1 }), { merge: true });
+            return numero;
+          });
+        });
+      },
+      tomarNumeroOT: function () {
+        return db.runTransaction(function (tx) {
+          return tx.get(ref).then(function (doc) {
+            var data = doc.exists ? doc.data() : {};
+            var numero = data.proximoNumeroOT || 1;
+            tx.set(ref, Object.assign({}, data, { proximoNumeroOT: numero + 1 }), { merge: true });
             return numero;
           });
         });

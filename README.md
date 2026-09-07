@@ -93,19 +93,29 @@ Funciona sin conexión y no depende de ninguna librería externa.
    según su índole:
    - **Ventas**: buscá una cotización (por cliente o número), opcionalmente
      ponele una fecha estimada de entrega, y marcala como vendida — ahí
-     recién se descuenta el stock (ver Materiales arriba). Abajo queda la
-     lista de ventas confirmadas con el **seguimiento del proceso
-     productivo**: un selector de etapa (Corte → Soldadura → Pintura →
-     Terminado → Entregado, se va actualizando a mano a medida que avanza
-     el trabajo) y la fecha estimada de entrega, editable — si esa fecha
-     ya pasó y el trabajo no está "Entregado", se marca como **Atrasado**.
-     También hay opción de deshacer la venta (repone el stock). Cada venta
-     confirmada tiene una columna **Cobrado** con el botón **"Registrar
-     cobro"**: para cargar una seña o un pago parcial, cargá el **% del
-     total** (se calcula solo el monto, ej. 40%) o directamente un
-     **monto** a mano — se pueden cargar tantos cobros como haga falta
-     hasta completar el total, y abajo queda el historial completo de
-     cobros de todas las ventas.
+     recién se descuenta el stock (ver Materiales arriba) y se genera la
+     **OT** (orden de trabajo) de esa venta, con su propio número
+     correlativo (OT-1, OT-2, …) independiente del número de presupuesto.
+     Arriba de todo, la **"Vista de proyectos"** muestra un Gantt simple:
+     una fila por cada OT en proceso, con una barra dividida en las etapas
+     configuradas (verde lo ya hecho, azul la etapa actual, gris lo que
+     falta, roja si está pausada) — de un vistazo se ve en qué está cada
+     proyecto. Abajo, la tabla de ventas confirmadas tiene el detalle de
+     cada OT: un selector de etapa (las etapas son las que definas en
+     Ajustes → Producción, ver más abajo) y la fecha estimada de entrega,
+     editable — si esa fecha ya pasó y el trabajo no llegó a la última
+     etapa, se marca como **Atrasado**. Un botón **"Pausar"** permite
+     frenar una OT en cualquier etapa cargando la **causa** (de una lista
+     configurable) y notas opcionales; al **"Reanudar"** se guarda cuánto
+     duró la parada, con un historial de paradas de todo el taller abajo
+     de la tabla (para ver qué es lo que más frena la producción). También
+     hay opción de deshacer la venta (repone el stock, se pierde el
+     seguimiento de esa OT). Cada venta confirmada tiene además una
+     columna **Cobrado** con el botón **"Registrar cobro"**: para cargar
+     una seña o un pago parcial, cargá el **% del total** (se calcula solo
+     el monto, ej. 40%) o directamente un **monto** a mano — se pueden
+     cargar tantos cobros como haga falta hasta completar el total, con su
+     propio historial completo de cobros de todas las ventas.
    - **Rentabilidad**: por cada mes (últimos 6), margen bruto de las
      ventas confirmadas (el campo `margen` que ya calcula el Cotizador)
      menos los sueldos y cuotas de crédito pagados ese mes = rentabilidad
@@ -131,7 +141,14 @@ Funciona sin conexión y no depende de ninguna librería externa.
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos, cobros, empleados/sueldos, créditos y datos de la empresa)
-   en un archivo `.json`.
+   en un archivo `.json`. La sección **Producción** define, con listas
+   editables (agregar, quitar, subir/bajar de orden), las **etapas de
+   producción** que usa el seguimiento de OT en Finanzas → Ventas (por
+   defecto Corte → Soldadura → Pintura → Terminado → Entregado, pero se
+   pueden renombrar/agregar/reordenar libremente) y las **causas de
+   parada** que aparecen al pausar una OT (por defecto: falta de
+   material, rotura de máquina, falta de personal, espera de aprobación
+   del cliente, otro).
 6. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a

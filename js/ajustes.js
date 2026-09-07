@@ -42,6 +42,60 @@
       '<button class="btn btn-primary btn-block" id="aj-sheets-actualizar">Actualizar precios desde Sheets</button>';
   }
 
+  // Editor genérico de listas ordenadas (usado para etapas de producción y
+  // causas de parada): agregar al final, quitar, subir/bajar de posición.
+  function listaEditableHTML(idPrefix, items, placeholder) {
+    return '<div class="line-items" id="' + idPrefix + '-items">' +
+        (items.length === 0 ? '<p class="empty-state">Todavía no cargaste ninguna.</p>' : items.map(function (item, idx) {
+          return '<div class="line-item" data-idx="' + idx + '">' +
+            '<div class="line-item-name">' + Util.escapeHtml(item) + '</div>' +
+            '<div style="display:flex;">' +
+              '<button type="button" class="icon-btn" data-list="' + idPrefix + '" data-action="subir" data-idx="' + idx + '" aria-label="Subir"' + (idx === 0 ? ' disabled' : '') + '>&uarr;</button>' +
+              '<button type="button" class="icon-btn" data-list="' + idPrefix + '" data-action="bajar" data-idx="' + idx + '" aria-label="Bajar"' + (idx === items.length - 1 ? ' disabled' : '') + '>&darr;</button>' +
+              '<button type="button" class="icon-btn" data-list="' + idPrefix + '" data-action="quitar" data-idx="' + idx + '" aria-label="Quitar">' + Util.iconTrash() + '</button>' +
+            '</div>' +
+          '</div>';
+        }).join('')) +
+      '</div>' +
+      '<div class="field-row" style="margin-top:8px;">' +
+        '<input class="input" id="' + idPrefix + '-nuevo" placeholder="' + Util.escapeHtml(placeholder) + '">' +
+        '<button type="button" class="btn btn-outline" id="' + idPrefix + '-agregar-btn" style="max-width:130px;">+ Agregar</button>' +
+      '</div>';
+  }
+
+  function wireListaEditable(idPrefix, campo) {
+    document.getElementById(idPrefix + '-agregar-btn').addEventListener('click', function () {
+      var input = document.getElementById(idPrefix + '-nuevo');
+      var valor = input.value.trim();
+      if (!valor) { Util.toast('Escribí un texto para agregar'); return; }
+      var e = Store.empresa.get();
+      var lista = (e[campo] || []).concat([valor]);
+      var data = {};
+      data[campo] = lista;
+      Store.empresa.save(Object.assign({}, e, data));
+      render();
+    });
+    document.querySelectorAll('[data-list="' + idPrefix + '"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var e = Store.empresa.get();
+        var lista = (e[campo] || []).slice();
+        var idx = parseInt(btn.dataset.idx, 10);
+        var accion = btn.dataset.action;
+        if (accion === 'quitar') {
+          lista.splice(idx, 1);
+        } else if (accion === 'subir' && idx > 0) {
+          var tmp = lista[idx - 1]; lista[idx - 1] = lista[idx]; lista[idx] = tmp;
+        } else if (accion === 'bajar' && idx < lista.length - 1) {
+          var tmp2 = lista[idx + 1]; lista[idx + 1] = lista[idx]; lista[idx] = tmp2;
+        }
+        var data = {};
+        data[campo] = lista;
+        Store.empresa.save(Object.assign({}, e, data));
+        render();
+      });
+    });
+  }
+
   function render() {
     var cont = document.getElementById('ajustes-container');
     var e = Store.empresa.get();
@@ -76,6 +130,17 @@
       '</div>' +
 
       '<div class="card">' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Producción</h2>' +
+        '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
+          'Definí las etapas y las causas de parada que usa el seguimiento de cada OT en Finanzas &gt; Ventas.' +
+        '</p>' +
+        '<div class="field"><label>Etapas de producción (en orden)</label></div>' +
+        listaEditableHTML('aj-etapas', e.etapasProduccion || [], 'Ej: Armado') +
+        '<div class="field" style="margin-top:16px;"><label>Causas de parada</label></div>' +
+        listaEditableHTML('aj-causas', e.causasParada || [], 'Ej: Falta de insumo') +
+      '</div>' +
+
+      '<div class="card">' +
         '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:10px;">Copia de seguridad</h2>' +
         '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
           'Mientras no esté conectada la sincronización automática, usá esto para pasar los datos entre el celular y la compu: ' +
@@ -107,6 +172,9 @@
       }));
       Util.toast('Datos de la empresa guardados');
     });
+
+    wireListaEditable('aj-etapas', 'etapasProduccion');
+    wireListaEditable('aj-causas', 'causasParada');
 
     document.getElementById('aj-dolar-guardar').addEventListener('click', function () {
       var v = parseFloat(document.getElementById('aj-dolar').value);

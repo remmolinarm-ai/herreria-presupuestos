@@ -99,23 +99,30 @@
   }
 
   var EMPRESA_KEY = 'empresa';
+  var EMPRESA_DEFAULTS = {
+    nombre: '',
+    telefono: '',
+    direccion: '',
+    condiciones: 'Presupuesto válido por 15 días. No incluye instalación salvo que se indique. Se solicita anticipo del 50% para reservar materiales.',
+    proximoNumero: 1,
+    proximoNumeroOT: 1,
+    costosDirectosProyectoPorcentajeDefault: 0,
+    ingenieriaDisenoPorcentajeDefault: 0,
+    cifPorcentaje: 0,
+    gastosAdminPorcentaje: 0,
+    margenPorcentaje: 0,
+    ivaPorcentaje: 0,
+    dolarOficial: 0,
+    dolarActualizado: null,
+    etapasProduccion: ['Corte', 'Soldadura', 'Pintura', 'Terminado', 'Entregado'],
+    causasParada: ['Falta de material', 'Rotura de máquina', 'Falta de personal', 'Espera de aprobación del cliente', 'Otro']
+  };
   var empresa = {
+    // Combinado con los defaults (no devuelto tal cual) para que un campo
+    // nuevo (ej. etapasProduccion) aparezca aunque la empresa ya tuviera
+    // datos guardados de antes de que ese campo existiera.
     get: function () {
-      return readRaw(EMPRESA_KEY, {
-        nombre: '',
-        telefono: '',
-        direccion: '',
-        condiciones: 'Presupuesto válido por 15 días. No incluye instalación salvo que se indique. Se solicita anticipo del 50% para reservar materiales.',
-        proximoNumero: 1,
-        costosDirectosProyectoPorcentajeDefault: 0,
-        ingenieriaDisenoPorcentajeDefault: 0,
-        cifPorcentaje: 0,
-        gastosAdminPorcentaje: 0,
-        margenPorcentaje: 0,
-        ivaPorcentaje: 0,
-        dolarOficial: 0,
-        dolarActualizado: null
-      });
+      return Object.assign({}, EMPRESA_DEFAULTS, readRaw(EMPRESA_KEY, {}));
     },
     save: function (data) {
       writeRaw(EMPRESA_KEY, data);
@@ -126,6 +133,13 @@
       var e = this.get();
       var numero = e.proximoNumero || 1;
       e.proximoNumero = numero + 1;
+      this.save(e);
+      return numero;
+    },
+    tomarNumeroOT: function () {
+      var e = this.get();
+      var numero = e.proximoNumeroOT || 1;
+      e.proximoNumeroOT = numero + 1;
       this.save(e);
       return numero;
     }
