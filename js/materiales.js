@@ -77,15 +77,20 @@
     });
   }
 
-  function celdaPrecios(m) {
+  function celdaPrecioArs(m) {
+    var opciones = Precios.opciones(m);
+    if (opciones.length === 0) return '<span class="cell-sub">—</span>';
+    if (!(Dolar.valorActual() > 0)) return '<span class="cell-sub">Cargá la cotización en Ajustes</span>';
+    return opciones.map(function (op) {
+      return '<div><strong>' + op.label + ':</strong> ' + BudgetPDF.money(Dolar.aPesos(op.precioUsd)) + '</div>';
+    }).join('');
+  }
+
+  function celdaPrecioUsd(m) {
     var opciones = Precios.opciones(m);
     if (opciones.length === 0) return '<span class="cell-sub">—</span>';
     return opciones.map(function (op) {
-      var ars = Dolar.aPesos(op.precioUsd);
-      var principal = Dolar.valorActual() > 0 ? BudgetPDF.money(ars) : Dolar.formatearUsd(op.precioUsd);
-      return '<div><strong>' + op.label + ':</strong> ' + principal +
-        (Dolar.valorActual() > 0 ? ' <span class="cell-sub">(≈ ' + Dolar.formatearUsd(op.precioUsd) + ')</span>' : '') +
-        '</div>';
+      return '<div>' + Dolar.formatearUsd(op.precioUsd) + '</div>';
     }).join('');
   }
 
@@ -104,7 +109,7 @@
 
     cont.innerHTML =
       '<div class="table-wrap"><table class="data-table">' +
-        '<thead><tr><th>Material</th><th>Unidad</th><th class="hide-narrow">Cant./pieza</th><th class="hide-narrow">Kg/pieza</th><th>Precio</th><th class="hide-narrow">Actualizado</th><th></th></tr></thead>' +
+        '<thead><tr><th>Material</th><th>Unidad</th><th class="hide-narrow">Cant./pieza</th><th class="hide-narrow">Kg/pieza</th><th>Precio ($)</th><th class="hide-narrow">Equiv. (US$)</th><th class="hide-narrow">Actualizado</th><th></th></tr></thead>' +
         '<tbody>' +
         materiales.map(function (m) {
           return '<tr data-id="' + m.id + '">' +
@@ -112,7 +117,8 @@
             '<td>' + Util.escapeHtml(m.unidad) + '</td>' +
             '<td class="hide-narrow">' + (m.cantidad ? m.cantidad : '—') + '</td>' +
             '<td class="hide-narrow">' + (m.pesoUnidad ? m.pesoUnidad : '—') + '</td>' +
-            '<td>' + celdaPrecios(m) + '</td>' +
+            '<td>' + celdaPrecioArs(m) + '</td>' +
+            '<td class="cell-sub hide-narrow">' + celdaPrecioUsd(m) + '</td>' +
             '<td class="cell-sub hide-narrow">' + (m.actualizado ? Util.fechaCorta(m.actualizado) : '—') + '</td>' +
             '<td class="col-actions">' +
               '<button class="icon-btn" data-action="editar" aria-label="Editar">' + Util.iconPencil() + '</button>' +
