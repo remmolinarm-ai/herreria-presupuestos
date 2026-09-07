@@ -81,8 +81,10 @@
     var opciones = Precios.opciones(m);
     if (opciones.length === 0) return '<span class="cell-sub">—</span>';
     if (!(Dolar.valorActual() > 0)) return '<span class="cell-sub">Cargá la cotización en Ajustes</span>';
+    var multiple = opciones.length > 1;
     return opciones.map(function (op) {
-      return '<div><strong>' + op.label + ':</strong> ' + BudgetPDF.money(Dolar.aPesos(op.precioUsd)) + '</div>';
+      var precio = BudgetPDF.money(Dolar.aPesos(op.precioUsd));
+      return '<div>' + (multiple ? '<strong>' + op.label + ':</strong> ' + precio : precio) + '</div>';
     }).join('');
   }
 
