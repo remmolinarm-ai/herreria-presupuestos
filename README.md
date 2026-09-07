@@ -1,4 +1,4 @@
-# REM - Cotizaciones
+# PROYECTAR
 
 App web instalable (PWA) para cargar la lista de precios de materiales y
 armar presupuestos con la estructura de costos de una metalmecánica.
@@ -9,7 +9,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
 1. **Materiales**: cargá cada material con su unidad (m, kg, unidad…) y
    precio. Se puede editar en cualquier momento; queda registrada la fecha
    de la última actualización.
-2. **Presupuestar**: elegí cliente, describí el trabajo (texto libre) y
+2. **Cotizador**: elegí cliente, describí el trabajo (texto libre) y
    sumá los materiales que se van a usar con su cantidad. El presupuesto
    se calcula por capas, cada una sobre el subtotal acumulado:
 

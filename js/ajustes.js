@@ -86,8 +86,8 @@
           'exportá un archivo desde un dispositivo y luego importalo en el otro.' +
         '</p>' +
         '<div class="form-actions">' +
-          '<button class="btn btn-outline" id="aj-exportar">⬇️ Exportar copia</button>' +
-          '<button class="btn btn-outline" id="aj-importar-btn">⬆️ Importar copia</button>' +
+          '<button class="btn btn-outline" id="aj-exportar">' + Util.iconDownload() + ' Exportar copia</button>' +
+          '<button class="btn btn-outline" id="aj-importar-btn">' + Util.iconUpload() + ' Importar copia</button>' +
         '</div>' +
         '<input type="file" id="aj-importar-file" accept="application/json,.json" hidden>' +
       '</div>' +

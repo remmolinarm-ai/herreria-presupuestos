@@ -152,7 +152,7 @@
                   '<div><div class="line-item-name">' + Util.escapeHtml(it.nombre) + '</div>' +
                   '<div class="line-item-meta">' + it.cantidad + ' ' + Util.escapeHtml(it.unidad) + ' × ' + BudgetPDF.money(it.precioUnitario) + '</div></div>' +
                   '<div class="line-item-total">' + BudgetPDF.money(it.subtotal) + '</div>' +
-                  '<button class="line-item-remove" data-idx="' + idx + '" aria-label="Quitar">✕</button>' +
+                  '<button class="line-item-remove" data-idx="' + idx + '" aria-label="Quitar">' + Util.iconClose() + '</button>' +
                 '</div>';
               }).join('')
           ) +
@@ -371,8 +371,8 @@
             '<td class="cell-sub hide-narrow">' + Util.fechaCorta(p.fecha) + '</td>' +
             '<td class="cell-title">' + BudgetPDF.money(p.total) + '</td>' +
             '<td class="col-actions">' +
-              '<button class="icon-btn" data-action="pdf" aria-label="Descargar PDF">📄</button>' +
-              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">🗑️</button>' +
+              '<button class="icon-btn" data-action="pdf" aria-label="Descargar PDF">' + Util.iconDoc() + '</button>' +
+              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">' + Util.iconTrash() + '</button>' +
             '</td>' +
           '</tr>';
         }).join('') +

@@ -1,6 +1,6 @@
 {
-  "name": "REM - Cotizaciones",
-  "short_name": "REM",
+  "name": "PROYECTAR",
+  "short_name": "PROYECTAR",
   "description": "Lista de precios y cotizaciones para taller de herrería",
   "start_url": "./index.html",
   "scope": "./",

@@ -73,6 +73,9 @@ h1, h2, h3, p { margin: 0; }
 .nav-toggle:hover { background: var(--surface-alt); }
 .app-title { font-weight: 800; font-size: 1rem; letter-spacing: -0.01em; flex: 1; color: var(--brand-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .app-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--steel-700);
@@ -81,6 +84,7 @@ h1, h2, h3, p { margin: 0; }
   border-radius: var(--radius-pill);
   white-space: nowrap;
 }
+.app-sync-badge svg { flex-shrink: 0; }
 
 /* ---------- Navegación lateral ---------- */
 .side-nav {
@@ -125,7 +129,7 @@ h1, h2, h3, p { margin: 0; }
 }
 .nav-link:hover { background: var(--surface-alt); }
 .nav-link[aria-current="page"] { background: var(--brand-050); color: var(--brand-700); }
-.nav-icon { font-size: 1.1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; }
 
 /* ---------- Main / views ---------- */
 .app-main {
@@ -218,9 +222,12 @@ textarea.input { resize: vertical; }
 .data-table td.cell-wrap { white-space: normal; min-width: 130px; }
 .cell-sub { font-size: 0.78rem; color: var(--steel-500); }
 .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  padding: 6px 8px;
+  padding: 7px;
   border-radius: 50%;
   color: var(--steel-600);
   font-size: 0.9rem;
@@ -279,7 +286,7 @@ textarea.input { resize: vertical; }
 .line-item-name { font-size: 0.87rem; font-weight: 600; }
 .line-item-meta { font-size: 0.77rem; color: var(--steel-500); }
 .line-item-total { font-weight: 700; font-size: 0.89rem; text-align: right; }
-.line-item-remove { background: none; border: none; color: var(--danger); font-size: 1.05rem; padding: 4px 6px; border-radius: 50%; }
+.line-item-remove { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; color: var(--danger); padding: 6px; border-radius: 50%; }
 .line-item-remove:hover { background: var(--danger-050); }
 
 .totals-box { background: var(--ink-900); color: #fff; border-radius: var(--radius); padding: 18px; margin-top: 14px; box-shadow: var(--shadow-sm); }
@@ -369,7 +376,7 @@ textarea.input { resize: vertical; }
   color: #fff;
 }
 .chat-panel-head h2 { font-size: 0.9rem; font-weight: 700; }
-.chat-close { background: none; border: none; color: #fff; font-size: 1rem; opacity: 0.85; padding: 4px 6px; border-radius: 50%; }
+.chat-close { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; color: #fff; opacity: 0.85; padding: 6px; border-radius: 50%; }
 .chat-log {
   flex: 1;
   overflow-y: auto;

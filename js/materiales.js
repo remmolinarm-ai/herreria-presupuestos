@@ -82,8 +82,8 @@
             '<td>' + BudgetPDF.money(m.precio) + '</td>' +
             '<td class="cell-sub hide-narrow">' + (m.actualizado ? Util.fechaCorta(m.actualizado) : '—') + '</td>' +
             '<td class="col-actions">' +
-              '<button class="icon-btn" data-action="editar" aria-label="Editar">✏️</button>' +
-              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">🗑️</button>' +
+              '<button class="icon-btn" data-action="editar" aria-label="Editar">' + Util.iconPencil() + '</button>' +
+              '<button class="icon-btn" data-action="borrar" aria-label="Eliminar">' + Util.iconTrash() + '</button>' +
             '</td>' +
           '</tr>';
         }).join('') +

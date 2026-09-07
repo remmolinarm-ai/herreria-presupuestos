@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>REM - Cotizaciones</title>
+<title>PROYECTAR</title>
 <meta name="description" content="Lista de precios de materiales y cotizaciones para taller de herrería.">
 <meta name="theme-color" content="#1b2c63">
 <link rel="manifest" href="manifest.webmanifest">
@@ -18,25 +18,25 @@
 
 <header class="app-header">
   <div class="app-header-inner">
-    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="side-nav">☰</button>
-    <span class="app-title">REM - Cotizaciones</span>
-    <span class="app-sync-badge" id="sync-badge" title="Guardado en este dispositivo">📱 Local</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="side-nav"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <span class="app-title">PROYECTAR</span>
+    <span class="app-sync-badge" id="sync-badge" title="Guardado en este dispositivo"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 15.2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Local</span>
   </div>
 </header>
 
 <div class="nav-backdrop" id="nav-backdrop"></div>
 <nav class="side-nav" id="side-nav" aria-label="Navegación de la app">
   <button class="nav-link" data-target="materiales" aria-current="page">
-    <span class="nav-icon" aria-hidden="true">📋</span><span>Materiales</span>
+    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.5 3H4a1 1 0 0 0-1 1v6.5a1 1 0 0 0 .29.71l7.5 7.5a1 1 0 0 0 1.42 0l6.5-6.5a1 1 0 0 0 0-1.42l-7.5-7.5A1 1 0 0 0 10.5 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.2" cy="7.2" r="1.1" fill="currentColor"/></svg></span><span>Materiales</span>
   </button>
   <button class="nav-link" data-target="nuevo">
-    <span class="nav-icon" aria-hidden="true">🧮</span><span>Presupuestar</span>
+    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="2.5" width="12" height="15" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 6h7M6.5 9.5h1.2M9.4 9.5h1.2M12.3 9.5h1.2M6.5 12.5h1.2M9.4 12.5h1.2M12.3 12.5h1.2M6.5 15.3h1.2M9.4 15.3h1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span>Cotizador</span>
   </button>
   <button class="nav-link" data-target="historial">
-    <span class="nav-icon" aria-hidden="true">🗂️</span><span>Historial</span>
+    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10.5" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M10 6.5V10.5L12.8 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Historial</span>
   </button>
   <button class="nav-link" data-target="ajustes">
-    <span class="nav-icon" aria-hidden="true">⚙️</span><span>Ajustes</span>
+    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.8v2M10 15.2v2M17.2 10h-2M4.8 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3 4.9 4.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span>Ajustes</span>
   </button>
 </nav>
 
@@ -87,12 +87,12 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<button class="chat-fab" id="chat-fab" aria-label="Preguntar precio de un material" aria-expanded="false">💬</button>
+<button class="chat-fab" id="chat-fab" aria-label="Preguntar precio de un material" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5a6.5 6.5 0 1 1 3 5.47L3 16l1.1-3A6.47 6.47 0 0 1 3 9.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
 
 <div class="chat-panel" id="chat-panel" hidden>
   <div class="chat-panel-head">
     <h2>Preguntá un precio</h2>
-    <button class="chat-close" id="chat-close" aria-label="Cerrar">✕</button>
+    <button class="chat-close" id="chat-close" aria-label="Cerrar"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   </div>
   <div class="chat-log" id="chat-log"></div>
   <form class="chat-input-row" id="chat-form">

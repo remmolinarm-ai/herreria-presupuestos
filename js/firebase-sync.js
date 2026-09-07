@@ -26,13 +26,13 @@
     var el = document.getElementById('sync-badge');
     if (!el) return;
     if (estado === 'nube') {
-      el.textContent = '☁️ Sincronizado';
+      el.innerHTML = Util.iconCloud() + ' Sincronizado';
       el.title = 'Sincronizado en la nube como ' + (detalle || '');
     } else if (estado === 'conectando') {
-      el.textContent = '⏳ Conectando…';
+      el.innerHTML = Util.iconClock() + ' Conectando…';
       el.title = '';
     } else {
-      el.textContent = '📱 Local';
+      el.innerHTML = Util.iconDevice() + ' Local';
       el.title = 'Guardado solo en este dispositivo';
     }
   }
