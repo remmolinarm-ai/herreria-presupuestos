@@ -56,6 +56,16 @@
     return scored;
   }
 
+  function textoPrecio(m) {
+    var opciones = global.Precios.opciones(m);
+    if (opciones.length === 0) return 'no tiene precio cargado';
+    return opciones.map(function (op) {
+      var txt = global.Dolar.formatearUsd(op.precioUsd) + ' / ' + op.unidadLabel;
+      if (global.Dolar.valorActual() > 0) txt += ' (≈ ' + global.BudgetPDF.money(global.Dolar.aPesos(op.precioUsd)) + ')';
+      return txt;
+    }).join(' · ');
+  }
+
   function fecha(iso) {
     if (!iso) return 'sin fecha registrada';
     var d = new Date(iso);
@@ -77,11 +87,11 @@
 
     if (esClaro) {
       var m = top.mat;
-      return 'El "' + m.nombre + '" cuesta ' + global.BudgetPDF.money(m.precio) + ' por ' + (m.unidad || 'unidad') + ' (' + fecha(m.actualizado) + ').';
+      return 'El "' + m.nombre + '" cuesta ' + textoPrecio(m) + ' (' + fecha(m.actualizado) + ').';
     }
 
     var lista = resultados.slice(0, 5).map(function (r) {
-      return '• ' + r.mat.nombre + ' — ' + global.BudgetPDF.money(r.mat.precio) + ' / ' + (r.mat.unidad || 'u');
+      return '• ' + r.mat.nombre + ' — ' + textoPrecio(r.mat);
     }).join('\n');
     return 'Encontré varios parecidos, ¿cuál de estos?\n' + lista;
   }

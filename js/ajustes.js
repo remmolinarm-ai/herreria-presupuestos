@@ -58,6 +58,20 @@
       '</div>' +
 
       '<div class="card">' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Cotización del dólar</h2>' +
+        '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
+          'Se usa para convertir a pesos los materiales cargados en dólares. ' +
+          (Dolar.fechaActualizado() ? 'Última actualización: ' + Util.fechaCorta(Dolar.fechaActualizado()) + '.' : 'Todavía no se actualizó.') +
+        '</p>' +
+        '<div class="field"><label for="aj-dolar">Dólar oficial (venta, en pesos)</label>' +
+          '<input class="input" id="aj-dolar" type="number" min="0" step="0.01" value="' + (Dolar.valorActual() || '') + '"></div>' +
+        '<div class="form-actions">' +
+          '<button class="btn btn-outline" id="aj-dolar-guardar">Guardar valor</button>' +
+          '<button class="btn btn-primary" id="aj-dolar-actualizar">Actualizar automático</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card">' +
         '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:10px;">Copia de seguridad</h2>' +
         '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
           'Mientras no esté conectada la sincronización automática, usá esto para pasar los datos entre el celular y la compu: ' +
@@ -88,6 +102,28 @@
         condiciones: document.getElementById('aj-condiciones').value.trim()
       }));
       Util.toast('Datos de la empresa guardados');
+    });
+
+    document.getElementById('aj-dolar-guardar').addEventListener('click', function () {
+      var v = parseFloat(document.getElementById('aj-dolar').value);
+      if (isNaN(v) || v <= 0) { Util.toast('Ingresá un valor válido'); return; }
+      Dolar.guardar(v);
+      Util.toast('Cotización guardada');
+    });
+
+    document.getElementById('aj-dolar-actualizar').addEventListener('click', function () {
+      var btn = document.getElementById('aj-dolar-actualizar');
+      var textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Actualizando…';
+      Dolar.actualizar().then(function (valor) {
+        Util.toast('Cotización actualizada: $ ' + valor);
+      }).catch(function (err) {
+        console.error(err);
+        Util.toast('No se pudo traer la cotización, revisá la conexión');
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      });
     });
 
     document.getElementById('aj-exportar').addEventListener('click', function () {

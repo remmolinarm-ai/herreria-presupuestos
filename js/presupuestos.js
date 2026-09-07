@@ -40,6 +40,7 @@
    */
   function calcularTotales() {
     var totalMateriales = estado.items.reduce(function (a, i) { return a + i.subtotal; }, 0);
+    var totalMaterialesUsd = estado.items.reduce(function (a, i) { return a + (i.subtotalUsd || 0); }, 0);
     var porcentaje = Number(estado.manoObraPorcentaje) || 0;
     var manoObra = totalMateriales * porcentaje / 100;
     var costoProduccion = totalMateriales + manoObra;
@@ -60,27 +61,39 @@
 
     var iva = precioVenta * ivaPorcentaje / 100;
     var total = precioVenta + iva;
+    var cotizacion = Dolar.valorActual();
+    var totalUsd = cotizacion > 0 ? total / cotizacion : 0;
 
     return {
-      totalMateriales: totalMateriales,
+      totalMateriales: totalMateriales, totalMaterialesUsd: totalMaterialesUsd,
       porcentaje: porcentaje, manoObra: manoObra,
       cifPorcentaje: cifPorcentaje, cif: cif,
       gastosAdminPorcentaje: gastosAdminPorcentaje, gastosAdmin: gastosAdmin,
       margenPorcentaje: margenPorcentaje, margen: margen,
       ivaPorcentaje: ivaPorcentaje, iva: iva,
-      total: total
+      total: total, totalUsd: totalUsd, cotizacionDolar: cotizacion
     };
+  }
+
+  function usdEquiv(usd, size) {
+    if (!(Dolar.valorActual() > 0)) return '';
+    return ' <span style="opacity:.6;font-size:' + (size || '0.85em') + ';">(' + Dolar.formatearUsd(usd) + ')</span>';
+  }
+
+  function arsEquivTxt(usd) {
+    if (!(Dolar.valorActual() > 0)) return '';
+    return ' (≈ ' + BudgetPDF.money(Dolar.aPesos(usd)) + ')';
   }
 
   function totalsBoxHTML(t) {
     return (
-      '<div class="totals-row"><span>Materiales</span><span>' + BudgetPDF.money(t.totalMateriales) + '</span></div>' +
+      '<div class="totals-row"><span>Materiales</span><span>' + BudgetPDF.money(t.totalMateriales) + usdEquiv(t.totalMaterialesUsd) + '</span></div>' +
       '<div class="totals-row"><span>Mano de obra (' + t.porcentaje + '%)</span><span>' + BudgetPDF.money(t.manoObra) + '</span></div>' +
       (t.cifPorcentaje > 0 ? '<div class="totals-row"><span>Costos indirectos de fabricación (' + t.cifPorcentaje + '%)</span><span>' + BudgetPDF.money(t.cif) + '</span></div>' : '') +
       (t.gastosAdminPorcentaje > 0 ? '<div class="totals-row"><span>Gastos de administración y comercialización (' + t.gastosAdminPorcentaje + '%)</span><span>' + BudgetPDF.money(t.gastosAdmin) + '</span></div>' : '') +
       (t.margenPorcentaje > 0 ? '<div class="totals-row"><span>Margen de utilidad (' + t.margenPorcentaje + '%)</span><span>' + BudgetPDF.money(t.margen) + '</span></div>' : '') +
       (t.ivaPorcentaje > 0 ? '<div class="totals-row"><span>IVA (' + t.ivaPorcentaje + '%)</span><span>' + BudgetPDF.money(t.iva) + '</span></div>' : '') +
-      '<div class="totals-row total"><span>Total</span><span>' + BudgetPDF.money(t.total) + '</span></div>'
+      '<div class="totals-row total"><span>Total</span><span>' + BudgetPDF.money(t.total) + usdEquiv(t.totalUsd, '0.6em') + '</span></div>'
     );
   }
 
@@ -137,6 +150,10 @@
             '<div class="autocomplete-list" id="np-material-dropdown" hidden></div>' +
           '</div>' +
         '</div>' +
+        '<div class="field" id="np-basis-container" hidden>' +
+          '<label for="np-basis">Vender por</label>' +
+          '<select class="input" id="np-basis"></select>' +
+        '</div>' +
         '<div class="field-row">' +
           '<div class="field"><label for="np-cantidad">Cantidad</label>' +
             '<input class="input" id="np-cantidad" type="number" min="0" step="0.01" value="1"></div>' +
@@ -150,7 +167,7 @@
             : estado.items.map(function (it, idx) {
                 return '<div class="line-item" data-idx="' + idx + '">' +
                   '<div><div class="line-item-name">' + Util.escapeHtml(it.nombre) + '</div>' +
-                  '<div class="line-item-meta">' + it.cantidad + ' ' + Util.escapeHtml(it.unidad) + ' × ' + BudgetPDF.money(it.precioUnitario) + '</div></div>' +
+                  '<div class="line-item-meta">' + it.cantidad + ' ' + Util.escapeHtml(it.unidad) + ' × ' + BudgetPDF.money(it.precioUnitario) + usdEquiv(it.precioUnitarioUsd, '0.9em') + '</div></div>' +
                   '<div class="line-item-total">' + BudgetPDF.money(it.subtotal) + '</div>' +
                   '<button class="line-item-remove" data-idx="' + idx + '" aria-label="Quitar">' + Util.iconClose() + '</button>' +
                 '</div>';
@@ -191,13 +208,31 @@
     // ---- Autocompletado de materiales ----
     var materialInput = document.getElementById('np-material');
     var materialDropdown = document.getElementById('np-material-dropdown');
+    var basisContainer = document.getElementById('np-basis-container');
+    var basisSelect = document.getElementById('np-basis');
     var materialSeleccionado = null;
+    var opcionesActuales = [];
 
     function elegirMaterial(m) {
       materialInput.value = m.nombre;
       materialSeleccionado = m;
       materialDropdown.hidden = true;
+      opcionesActuales = Precios.opciones(m);
+      if (opcionesActuales.length > 1) {
+        basisSelect.innerHTML = opcionesActuales.map(function (op, i) {
+          return '<option value="' + i + '">' + Util.escapeHtml(op.label) + ' — ' + Dolar.formatearUsd(op.precioUsd) + '</option>';
+        }).join('');
+        basisContainer.hidden = false;
+      } else {
+        basisContainer.hidden = true;
+      }
       document.getElementById('np-cantidad').focus();
+    }
+
+    function opcionSeleccionada() {
+      if (opcionesActuales.length === 0) return null;
+      if (!basisContainer.hidden) return opcionesActuales[parseInt(basisSelect.value, 10)] || opcionesActuales[0];
+      return opcionesActuales[0];
     }
 
     function mostrarDropdown() {
@@ -208,9 +243,11 @@
         return;
       }
       materialDropdown.innerHTML = coincidencias.map(function (m) {
+        var op = Precios.opciones(m)[0];
+        var precioTxt = op ? (Dolar.formatearUsd(op.precioUsd) + ' / ' + op.unidadLabel + arsEquivTxt(op.precioUsd)) : 'Sin precio';
         return '<button type="button" class="autocomplete-item">' +
           '<span class="autocomplete-item-nombre">' + Util.escapeHtml(m.nombre) + '</span>' +
-          '<span class="autocomplete-item-precio">' + BudgetPDF.money(m.precio) + ' / ' + Util.escapeHtml(m.unidad) + '</span>' +
+          '<span class="autocomplete-item-precio">' + precioTxt + '</span>' +
         '</button>';
       }).join('');
       materialDropdown.hidden = false;
@@ -225,6 +262,8 @@
 
     materialInput.addEventListener('input', function () {
       materialSeleccionado = null;
+      opcionesActuales = [];
+      basisContainer.hidden = true;
       mostrarDropdown();
     });
     materialInput.addEventListener('focus', mostrarDropdown);
@@ -251,18 +290,29 @@
         : materiales.find(function (m) { return m.nombre === nombre; });
       if (!material) { Util.toast('Ese material no está en la lista de precios'); return; }
 
-      var existente = estado.items.find(function (i) { return i.materialId === material.id; });
+      var opciones = (materialSeleccionado === material && opcionesActuales.length) ? opcionesActuales : Precios.opciones(material);
+      var opcion = (materialSeleccionado === material) ? opcionSeleccionada() : opciones[0];
+      if (!opcion) { Util.toast('Ese material no tiene un precio cargado'); return; }
+
+      var precioUnitarioUsd = opcion.precioUsd;
+      var precioUnitarioArs = Dolar.aPesos(precioUnitarioUsd);
+      var unidadLinea = opcion.unidadLabel;
+
+      var existente = estado.items.find(function (i) { return i.materialId === material.id && i.unidad === unidadLinea; });
       if (existente) {
         existente.cantidad += cantidad;
         existente.subtotal = existente.cantidad * existente.precioUnitario;
+        existente.subtotalUsd = existente.cantidad * existente.precioUnitarioUsd;
       } else {
         estado.items.push({
           materialId: material.id,
           nombre: material.nombre,
-          unidad: material.unidad,
-          precioUnitario: material.precio,
+          unidad: unidadLinea,
+          precioUnitario: precioUnitarioArs,
+          precioUnitarioUsd: precioUnitarioUsd,
           cantidad: cantidad,
-          subtotal: material.precio * cantidad
+          subtotal: precioUnitarioArs * cantidad,
+          subtotalUsd: precioUnitarioUsd * cantidad
         });
       }
       renderNuevo();
@@ -303,6 +353,7 @@
           porcentaje: totales.porcentaje,
           items: estado.items,
           totalMateriales: totales.totalMateriales,
+          totalMaterialesUsd: totales.totalMaterialesUsd,
           manoObra: totales.manoObra,
           cifPorcentaje: totales.cifPorcentaje,
           cif: totales.cif,
@@ -313,6 +364,8 @@
           ivaPorcentaje: totales.ivaPorcentaje,
           iva: totales.iva,
           total: totales.total,
+          totalUsd: totales.totalUsd,
+          cotizacionDolar: totales.cotizacionDolar,
           notas: estado.notas.trim(),
           condiciones: empresa.condiciones
         };

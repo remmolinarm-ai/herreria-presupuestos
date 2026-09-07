@@ -6,9 +6,23 @@ Funciona sin conexión y no depende de ninguna librería externa.
 
 ## Cómo usar la app
 
-1. **Materiales**: cargá cada material con su unidad (m, kg, unidad…) y
-   precio. Se puede editar en cualquier momento; queda registrada la fecha
-   de la última actualización.
+1. **Materiales**: cargá cada material con su unidad (m, kg, unidad, chapa,
+   barra…). Los precios se cargan **en dólares** (no se desactualizan con la
+   inflación) y se muestran siempre junto a su equivalente en pesos, según
+   la cotización del dólar oficial (ver Ajustes). Hay dos formas de cargar
+   el precio:
+   - **Por peso** (para barras y chapas): completá cuántas unidades de
+     medida tiene la pieza completa (ej: 6 metros por barra — dejalo en
+     blanco si no aplica, como en una chapa), el peso de esa pieza en kg y
+     el precio del kilo en dólares. La app calcula sola el precio por kg,
+     por pieza entera y, si corresponde, por metro — se muestran todos
+     juntos porque a veces un mismo material se vende de más de una forma
+     (una chapa por kg o entera, una barra por kg, entera o por metro).
+   - **Precio manual**: para lo que no se vende por peso (bulonería,
+     insumos, etc.), cargá directamente el precio en dólares por unidad.
+
+   Se puede editar en cualquier momento; queda registrada la fecha de la
+   última actualización.
 2. **Cotizador**: elegí cliente, describí el trabajo (texto libre) y
    sumá los materiales que se van a usar con su cantidad. El presupuesto
    se calcula por capas, cada una sobre el subtotal acumulado:
@@ -27,21 +41,47 @@ Funciona sin conexión y no depende de ninguna librería externa.
    ```
 
    Los 5 porcentajes (Mano de obra, CIF, Gastos admin., Margen, IVA) se
-   cargan directo en cada presupuesto — vienen precargados con los
-   valores por defecto de **Ajustes → Estructura de costos**, pero se
-   pueden cambiar libremente para esa cotización puntual. Dejar uno en 0
-   hace que no aparezca ni en el presupuesto ni en el PDF. Al guardar,
-   genera y descarga automáticamente el PDF con el desglose completo.
+   cargan directo en cada presupuesto, editable libremente para esa
+   cotización puntual. Dejar uno en 0 hace que no aparezca ni en el
+   presupuesto ni en el PDF. Si un material tiene más de una forma de
+   venta (ej: una chapa por kg o entera), aparece un selector "Vender
+   por" para elegir cuál usar en esa línea. Los totales y el PDF se
+   muestran en pesos (con el equivalente en dólares al lado) porque es
+   lo que ve el cliente final. Al guardar, genera y descarga
+   automáticamente el PDF con el desglose completo.
 3. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF o eliminarlos.
-4. **Ajustes**: datos de la empresa (aparecen en el PDF), los valores por
-   defecto de la estructura de costos, y botones para exportar/importar
-   una copia de seguridad completa (materiales, presupuestos y datos de
-   la empresa) en un archivo `.json`.
-5. **Botón de chat (💬)**: preguntá el precio de un material por nombre o
+4. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+   dólar usada para convertir los precios de materiales a pesos, y botones
+   para exportar/importar una copia de seguridad completa (materiales,
+   presupuestos y datos de la empresa) en un archivo `.json`.
+5. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
+
+## Cotización del dólar
+
+Los precios de materiales se cargan en dólares; para mostrar los
+presupuestos en pesos hace falta una cotización. En **Ajustes →
+Cotización del dólar**:
+
+- Al abrir la app, intenta traer sola el dólar oficial (referencia Banco
+  Nación, vía la API pública de [dolarapi.com](https://dolarapi.com))
+  usando el endpoint que toma como fuente la pizarra de Ámbito
+  Financiero/Banco Nación. Si no hay internet o la API no responde, sigue
+  usando el último valor guardado sin interrumpir nada.
+- Se puede escribir el valor a mano en cualquier momento (botón "Guardar
+  valor") — útil sin conexión o si se prefiere no depender de la API.
+- Cada presupuesto guarda la cotización que se usó en el momento de
+  crearlo, así el PDF de un presupuesto viejo no cambia si después se
+  actualiza el dólar.
+
+No fue posible probar el fetch real a la API desde este entorno de
+desarrollo (sin salida a internet hacia dominios externos), pero el
+código tiene manejo de errores para que, si falla, la app simplemente
+siga con el último valor guardado — el mismo patrón que ya se usa para
+Firebase y Google Sheets en esta app.
 
 ## Instalar en el celular / la compu
 
@@ -207,6 +247,9 @@ js/
   store.js              Capa de datos (materiales, trabajos, presupuestos,
                          empresa, backup) — local por defecto, reemplazada
                          por Firestore cuando hay sesión iniciada
+  dolar.js              Cotización del dólar oficial (auto + manual)
+  precios.js            Calcula las formas de venta de un material (por
+                         kg, pieza entera, por metro) en USD
   pdf-lite.js           Generador de PDF genérico, sin dependencias
   budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
   materiales.js         Pantalla Lista de precios

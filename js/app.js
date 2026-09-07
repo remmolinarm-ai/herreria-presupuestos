@@ -59,7 +59,11 @@
     // sea de este dispositivo o de otro sincronizado por la nube.
     Store.subscribe('materiales', function () { VistaMateriales.renderLista(); VistaNuevo.render(); });
     Store.subscribe('presupuestos', function () { VistaHistorial.renderLista(); });
-    Store.subscribe('empresa', function () { VistaAjustes.init(); });
+    Store.subscribe('empresa', function () {
+      VistaAjustes.init();
+      VistaMateriales.renderLista();
+      VistaNuevo.render();
+    });
 
     document.querySelectorAll('.nav-link').forEach(function (btn) {
       btn.addEventListener('click', function () { mostrarVista(btn.dataset.target); });
@@ -80,6 +84,10 @@
     mostrarVista('materiales');
     registrarServiceWorker();
     if (global.FirebaseSync) global.FirebaseSync.init();
+
+    // Trae la cotización del dólar al abrir la app; si falla (sin conexión,
+    // API caída) se sigue usando el último valor guardado sin avisar nada.
+    Dolar.actualizar().catch(function () {});
   });
 
   global.App = { refrescarTodo: refrescarTodo, mostrarVista: mostrarVista };

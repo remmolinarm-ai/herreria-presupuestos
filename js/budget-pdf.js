@@ -16,6 +16,11 @@
     return '$ ' + v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function moneyUsd(n) {
+    var v = Number(n) || 0;
+    return 'US$ ' + v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   function fechaLarga(iso) {
     var d = iso ? new Date(iso) : new Date();
     return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -119,6 +124,11 @@
     doc.line(pageIdx, MARGIN.left, y, totalsRight, y, { width: 1, color: [0.106, 0.173, 0.388] });
     y += 16;
     totalRow('TOTAL', money(presupuesto.total), { size: 13, bold: true });
+    if (presupuesto.cotizacionDolar) {
+      totalRow('Equivalente', moneyUsd(presupuesto.totalUsd), { size: 9 });
+      doc.text(pageIdx, MARGIN.left, y, 'Cotización dólar oficial usada: ' + money(presupuesto.cotizacionDolar) + ' (' + fechaLarga(presupuesto.fecha) + ')', { size: 7.5, color: [0.5, 0.5, 0.5] });
+      y += 12;
+    }
     y += 14;
 
     // ---- Notas / condiciones ----

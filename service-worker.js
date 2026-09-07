@@ -1,5 +1,5 @@
 /* Cache-first para poder abrir y usar la app sin conexión en el taller. */
-var CACHE_NAME = 'presupuestador-v13';
+var CACHE_NAME = 'presupuestador-v14';
 var APP_SHELL = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ var APP_SHELL = [
   './js/firebase-config.js',
   './js/util.js',
   './js/store.js',
+  './js/dolar.js',
+  './js/precios.js',
   './js/pdf-lite.js',
   './js/budget-pdf.js',
   './js/materiales.js',

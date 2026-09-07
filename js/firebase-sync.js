@@ -110,7 +110,9 @@
       cifPorcentaje: 0,
       gastosAdminPorcentaje: 0,
       margenPorcentaje: 0,
-      ivaPorcentaje: 0
+      ivaPorcentaje: 0,
+      dolarOficial: 0,
+      dolarActualizado: null
     };
 
     return {
