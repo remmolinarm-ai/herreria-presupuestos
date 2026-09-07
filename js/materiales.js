@@ -82,8 +82,9 @@
     if (opciones.length === 0) return '<span class="cell-sub">—</span>';
     return opciones.map(function (op) {
       var ars = Dolar.aPesos(op.precioUsd);
-      return '<div><strong>' + op.label + ':</strong> ' + Dolar.formatearUsd(op.precioUsd) +
-        (Dolar.valorActual() > 0 ? ' <span class="cell-sub">(≈ ' + BudgetPDF.money(ars) + ')</span>' : '') +
+      var principal = Dolar.valorActual() > 0 ? BudgetPDF.money(ars) : Dolar.formatearUsd(op.precioUsd);
+      return '<div><strong>' + op.label + ':</strong> ' + principal +
+        (Dolar.valorActual() > 0 ? ' <span class="cell-sub">(≈ ' + Dolar.formatearUsd(op.precioUsd) + ')</span>' : '') +
         '</div>';
     }).join('');
   }

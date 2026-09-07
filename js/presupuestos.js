@@ -80,9 +80,11 @@
     return ' <span style="opacity:.6;font-size:' + (size || '0.85em') + ';">(' + Dolar.formatearUsd(usd) + ')</span>';
   }
 
-  function arsEquivTxt(usd) {
-    if (!(Dolar.valorActual() > 0)) return '';
-    return ' (≈ ' + BudgetPDF.money(Dolar.aPesos(usd)) + ')';
+  function precioOpcionTxt(op) {
+    if (Dolar.valorActual() > 0) {
+      return BudgetPDF.money(Dolar.aPesos(op.precioUsd)) + ' (≈ ' + Dolar.formatearUsd(op.precioUsd) + ')';
+    }
+    return Dolar.formatearUsd(op.precioUsd);
   }
 
   function totalsBoxHTML(t) {
@@ -220,7 +222,7 @@
       opcionesActuales = Precios.opciones(m);
       if (opcionesActuales.length > 1) {
         basisSelect.innerHTML = opcionesActuales.map(function (op, i) {
-          return '<option value="' + i + '">' + Util.escapeHtml(op.label) + ' — ' + Dolar.formatearUsd(op.precioUsd) + '</option>';
+          return '<option value="' + i + '">' + Util.escapeHtml(op.label) + ' — ' + precioOpcionTxt(op) + '</option>';
         }).join('');
         basisContainer.hidden = false;
       } else {
@@ -244,7 +246,7 @@
       }
       materialDropdown.innerHTML = coincidencias.map(function (m) {
         var op = Precios.opciones(m)[0];
-        var precioTxt = op ? (Dolar.formatearUsd(op.precioUsd) + ' / ' + op.unidadLabel + arsEquivTxt(op.precioUsd)) : 'Sin precio';
+        var precioTxt = op ? (precioOpcionTxt(op) + ' / ' + op.unidadLabel) : 'Sin precio';
         return '<button type="button" class="autocomplete-item">' +
           '<span class="autocomplete-item-nombre">' + Util.escapeHtml(m.nombre) + '</span>' +
           '<span class="autocomplete-item-precio">' + precioTxt + '</span>' +

@@ -60,9 +60,11 @@
     var opciones = global.Precios.opciones(m);
     if (opciones.length === 0) return 'no tiene precio cargado';
     return opciones.map(function (op) {
-      var txt = global.Dolar.formatearUsd(op.precioUsd) + ' / ' + op.unidadLabel;
-      if (global.Dolar.valorActual() > 0) txt += ' (≈ ' + global.BudgetPDF.money(global.Dolar.aPesos(op.precioUsd)) + ')';
-      return txt;
+      if (global.Dolar.valorActual() > 0) {
+        return global.BudgetPDF.money(global.Dolar.aPesos(op.precioUsd)) + ' / ' + op.unidadLabel +
+          ' (≈ ' + global.Dolar.formatearUsd(op.precioUsd) + ')';
+      }
+      return global.Dolar.formatearUsd(op.precioUsd) + ' / ' + op.unidadLabel;
     }).join(' · ');
   }
 
