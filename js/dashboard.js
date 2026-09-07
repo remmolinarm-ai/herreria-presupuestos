@@ -82,6 +82,40 @@
     '</div>';
   }
 
+  var ETAPAS = ['Corte', 'Soldadura', 'Pintura', 'Terminado', 'Entregado'];
+
+  function trabajosEnProceso() {
+    return Store.presupuestos.getAll().filter(function (p) {
+      return p.vendido && p.etapaProduccion && p.etapaProduccion !== 'Entregado';
+    });
+  }
+
+  function contarAtrasados(lista) {
+    var hoy = new Date(new Date().toDateString());
+    return lista.filter(function (p) { return p.fechaEntregaEstimada && new Date(p.fechaEntregaEstimada) < hoy; }).length;
+  }
+
+  function seccionProduccion() {
+    var enProceso = trabajosEnProceso();
+    if (enProceso.length === 0) {
+      return '<div class="card"><h2 style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">Producción en proceso</h2>' +
+        '<p class="empty-state">No hay trabajos vendidos en proceso.</p></div>';
+    }
+    var conteos = {};
+    ETAPAS.forEach(function (e) { conteos[e] = 0; });
+    enProceso.forEach(function (p) { conteos[p.etapaProduccion] = (conteos[p.etapaProduccion] || 0) + 1; });
+    var etapasProceso = ETAPAS.filter(function (e) { return e !== 'Entregado'; });
+    var max = Math.max.apply(null, etapasProceso.map(function (e) { return conteos[e] || 0; }).concat([0]));
+    var atrasados = contarAtrasados(enProceso);
+    return '<div class="card">' +
+      '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:2px;">Producción en proceso</h2>' +
+      '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:12px;">' + enProceso.length + (enProceso.length === 1 ? ' trabajo vendido' : ' trabajos vendidos') +
+        (atrasados > 0 ? ' — <span style="color:var(--danger);font-weight:700;">' + atrasados + (atrasados === 1 ? ' atrasado' : ' atrasados') + '</span>' : '') +
+      '</p>' +
+      etapasProceso.map(function (e) { return barraHTML(e, conteos[e] || 0, max, String(conteos[e] || 0)); }).join('') +
+    '</div>';
+  }
+
   function seccionStockPorGrupo() {
     var materiales = Store.materiales.getAll();
     if (materiales.length === 0) {
@@ -121,14 +155,17 @@
     var presupuestosEsteMes = presupuestosPorMes()[keyEsteMes] || 0;
     var materiales = Store.materiales.getAll();
     var sinStock = materiales.filter(function (m) { return !(Number(m.stock) > 0); }).length;
+    var atrasados = contarAtrasados(trabajosEnProceso());
 
     cont.innerHTML =
       '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">' +
         statCard('Presupuestos este mes', presupuestosEsteMes) +
         statCard('Vendido este mes', BudgetPDF.money(ventasEsteMes.total)) +
         statCard('Materiales sin stock', sinStock) +
+        statCard('Trabajos atrasados', atrasados) +
       '</div>' +
       seccionVentas() +
+      seccionProduccion() +
       seccionStockPorGrupo();
   }
 

@@ -6,9 +6,11 @@ Funciona sin conexión y no depende de ninguna librería externa.
 
 ## Cómo usar la app
 
-1. **Dashboard**: pantalla de inicio con presupuestos y facturado del mes,
-   ventas de los últimos 6 meses, y stock por grupo de materiales (cuántos
-   materiales de cada grupo están sin stock cargado).
+1. **Dashboard**: pantalla de inicio con presupuestos y vendido del mes,
+   trabajos atrasados, ventas de los últimos 6 meses, **producción en
+   proceso** (cuántos trabajos vendidos hay en cada etapa: Corte,
+   Soldadura, Pintura, Terminado), y stock por grupo de materiales
+   (cuántos materiales de cada grupo están sin stock cargado).
 2. **Materiales**: cargá cada material con su unidad (m, kg, unidad, chapa,
    barra…), un **grupo** opcional para organizarlos (ej: Ángulos, Chapas,
    Pintura — se usa en el Dashboard y al importar desde Sheets) y su
@@ -72,10 +74,15 @@ Funciona sin conexión y no depende de ninguna librería externa.
    desglose de costos del PDF interno — solo dice la descripción del
    trabajo y el total final, que es lo único que le importa a quien pidió
    el presupuesto.
-6. **Ventas**: buscá una cotización (por cliente o número) y marcala como
-   vendida — ahí recién se descuenta el stock (ver Stock arriba). Abajo
-   queda la lista de ventas confirmadas, con opción de deshacer (repone
-   el stock).
+6. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
+   ponele una fecha estimada de entrega, y marcala como vendida — ahí
+   recién se descuenta el stock (ver Stock arriba). Abajo queda la lista
+   de ventas confirmadas con el **seguimiento del proceso productivo**:
+   un selector de etapa (Corte → Soldadura → Pintura → Terminado →
+   Entregado, se va actualizando a mano a medida que avanza el trabajo)
+   y la fecha estimada de entrega, editable — si esa fecha ya pasó y el
+   trabajo no está "Entregado", se marca como **Atrasado**. También hay
+   opción de deshacer la venta (repone el stock).
 7. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
