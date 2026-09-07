@@ -33,7 +33,10 @@ Funciona sin conexión y no depende de ninguna librería externa.
    Convierte la cantidad según cómo se vendió esa línea (si se vendió
    por metro pero el material se stockea por barra entera, descuenta la
    fracción de barra correspondiente). Puede quedar en negativo — es
-   solo un aviso visual (en rojo), no bloquea nada.
+   solo un aviso visual (en rojo), no bloquea nada. El botón **"Ver en
+   Mercado Libre"** abre en una pestaña nueva la búsqueda de Mercado
+   Libre con lo que haya escrito en el buscador de materiales (o la home
+   de Mercado Libre si está vacío) — para comparar rápido un precio.
 2. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
    poder mandarle el presupuesto después), describí el trabajo (texto
    libre) y sumá los materiales que se van a usar con su cantidad. El

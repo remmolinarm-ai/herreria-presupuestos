@@ -18,6 +18,17 @@
     return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
 
+  // Para comparar precios rápido: abre la búsqueda de Mercado Libre con lo
+  // que haya en el buscador de materiales (o la home si está vacío).
+  function linkMercadoLibre(query) {
+    // Barras como en "5/8" rompen el path si quedan codificadas (%2F) —
+    // se cambian por espacio antes de armar el slug con guiones.
+    var q = String(query || '').replace(/\//g, ' ').trim();
+    if (!q) return 'https://www.mercadolibre.com.ar/';
+    var slug = q.split(/\s+/).map(function (t) { return encodeURIComponent(t); }).join('-');
+    return 'https://listado.mercadolibre.com.ar/' + slug;
+  }
+
   function gruposExistentes() {
     var set = {};
     Store.materiales.getAll().forEach(function (m) { if (m.grupo) set[m.grupo] = true; });
@@ -437,6 +448,9 @@
       mostrarCargaStock = !mostrarCargaStock;
       renderCargaStock();
       if (mostrarCargaStock) document.getElementById('mat-stock-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('mat-ml-btn').addEventListener('click', function () {
+      global.open(linkMercadoLibre(document.getElementById('mat-buscar').value), '_blank');
     });
   }
 
