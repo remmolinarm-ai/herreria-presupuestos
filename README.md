@@ -86,24 +86,24 @@ Funciona sin conexión y no depende de ninguna librería externa.
    desglose de costos del PDF interno — solo dice la descripción del
    trabajo y el total final, que es lo único que le importa a quien pidió
    el presupuesto.
-4. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
-   ponele una fecha estimada de entrega, y marcala como vendida — ahí
-   recién se descuenta el stock (ver Materiales arriba). Abajo queda la
-   lista de ventas confirmadas con el **seguimiento del proceso productivo**:
-   un selector de etapa (Corte → Soldadura → Pintura → Terminado →
-   Entregado, se va actualizando a mano a medida que avanza el trabajo)
-   y la fecha estimada de entrega, editable — si esa fecha ya pasó y el
-   trabajo no está "Entregado", se marca como **Atrasado**. También hay
-   opción de deshacer la venta (repone el stock).
-5. **Finanzas**: cuatro sub-solapas con los datos del negocio agrupados
+4. **Finanzas**: cinco sub-solapas con los datos del negocio agrupados
    según su índole:
+   - **Ventas**: buscá una cotización (por cliente o número), opcionalmente
+     ponele una fecha estimada de entrega, y marcala como vendida — ahí
+     recién se descuenta el stock (ver Materiales arriba). Abajo queda la
+     lista de ventas confirmadas con el **seguimiento del proceso
+     productivo**: un selector de etapa (Corte → Soldadura → Pintura →
+     Terminado → Entregado, se va actualizando a mano a medida que avanza
+     el trabajo) y la fecha estimada de entrega, editable — si esa fecha
+     ya pasó y el trabajo no está "Entregado", se marca como **Atrasado**.
+     También hay opción de deshacer la venta (repone el stock).
    - **Rentabilidad**: por cada mes (últimos 6), margen bruto de las
      ventas confirmadas (el campo `margen` que ya calcula el Cotizador)
      menos los sueldos y cuotas de crédito pagados ese mes = rentabilidad
      neta. También los totales del mes en curso arriba, en tarjetas.
-   - **Ingresos**: son las mismas ventas confirmadas de la solapa Ventas
-     (no hay carga de ingresos aparte) — total facturado por mes, en
-     barras, más el acumulado histórico.
+   - **Ingresos**: son las mismas ventas confirmadas de la sub-solapa
+     Ventas (no hay carga de ingresos aparte) — total facturado por mes,
+     en barras, más el acumulado histórico.
    - **Sueldos**: alta de empleados (nombre + sueldo mensual) y botón
      "Registrar pago" por empleado para ir guardando cada liquidación
      (monto, fecha, período, notas), con historial de pagos abajo.
@@ -113,12 +113,12 @@ Funciona sin conexión y no depende de ninguna librería externa.
      "Registrar pago" de una cuota, el próximo vencimiento se corre un
      mes automáticamente. Si la fecha de vencimiento ya pasó y todavía
      hay saldo, se marca **Atrasado**.
-6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+5. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos, empleados/sueldos, créditos y datos de la empresa) en un
    archivo `.json`.
-7. **Botón de chat**: preguntá el precio de un material por nombre o
+6. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -349,9 +349,10 @@ js/
   materiales.js         Pantalla Materiales (lista de precios + stock,
                          con carga a mano y OCR de remitos)
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
-  ventas.js             Pantalla Ventas (marcar cotización como vendida)
-  finanzas.js           Pantalla Finanzas (rentabilidad, ingresos, sueldos,
-                         créditos, en sub-solapas)
+  ventas.js             Ventas (marcar cotización como vendida) — vive
+                         como sub-solapa dentro de Finanzas
+  finanzas.js           Pantalla Finanzas (ventas, rentabilidad, ingresos,
+                         sueldos, créditos, en sub-solapas)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
   asistente.js          Buscador de precios en lenguaje natural
   app.js                Navegación entre pantallas e inicialización

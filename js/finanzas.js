@@ -1,6 +1,8 @@
 /**
- * Finanzas: rentabilidad, ingresos, sueldos y créditos del taller, en
- * sub-solapas dentro de una sola sección. Ingresos/Rentabilidad se calculan
+ * Finanzas: ventas, rentabilidad, ingresos, sueldos y créditos del taller,
+ * en sub-solapas dentro de una sola sección. La sub-solapa Ventas delega
+ * por completo en VistaVentas (js/ventas.js) — acá solo se le da un
+ * contenedor y se la renderiza al entrar. Ingresos/Rentabilidad se calculan
  * directo de las ventas confirmadas (Store.presupuestos con vendido:true) —
  * no hay carga de ingresos aparte. Sueldos y Créditos sí tienen su propia
  * carga (empleados/pagos y créditos/pagos respectivamente).
@@ -9,12 +11,13 @@
   'use strict';
 
   var TABS = [
+    { id: 'ventas', label: 'Ventas' },
     { id: 'rentabilidad', label: 'Rentabilidad' },
     { id: 'ingresos', label: 'Ingresos' },
     { id: 'sueldos', label: 'Sueldos' },
     { id: 'creditos', label: 'Créditos' }
   ];
-  var subTab = 'rentabilidad';
+  var subTab = 'ventas';
 
   var mostrarFormEmpleado = false;
   var editandoEmpleadoId = null;
@@ -583,7 +586,8 @@
     '</div>';
 
     var body;
-    if (subTab === 'rentabilidad') body = renderRentabilidad();
+    if (subTab === 'ventas') body = '<div id="ventas-container"></div>';
+    else if (subTab === 'rentabilidad') body = renderRentabilidad();
     else if (subTab === 'ingresos') body = renderIngresos();
     else if (subTab === 'sueldos') body = renderSueldos();
     else body = renderCreditos();
@@ -599,7 +603,8 @@
       });
     });
 
-    if (subTab === 'sueldos') wireSueldos(cont);
+    if (subTab === 'ventas') global.VistaVentas.render();
+    else if (subTab === 'sueldos') wireSueldos(cont);
     else if (subTab === 'creditos') wireCreditos(cont);
   }
 

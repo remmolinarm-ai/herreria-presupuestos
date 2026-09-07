@@ -5,7 +5,6 @@
     materiales: function () { VistaMateriales.renderLista(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
-    ventas: function () { VistaVentas.render(); },
     finanzas: function () { VistaFinanzas.render(); },
     ajustes: function () { VistaAjustes.init(); }
   };
@@ -37,7 +36,6 @@
     VistaMateriales.renderLista();
     VistaNuevo.init();
     VistaHistorial.renderLista();
-    VistaVentas.render();
     VistaFinanzas.render();
     VistaAjustes.init();
   }
@@ -54,7 +52,6 @@
     VistaMateriales.init();
     VistaNuevo.init();
     VistaHistorial.init();
-    VistaVentas.init();
     VistaFinanzas.init();
     VistaAjustes.init();
     Asistente.initUI();
@@ -69,7 +66,6 @@
     });
     Store.subscribe('presupuestos', function () {
       VistaHistorial.renderLista();
-      VistaVentas.render();
       VistaFinanzas.render();
     });
     Store.subscribe('empresa', function () {
