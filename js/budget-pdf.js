@@ -99,28 +99,45 @@
     });
 
     y += 10;
-    ensureSpace(190);
+    ensureSpace(40);
 
     // ---- Totales (estructura de costos por capas) ----
     // Etiqueta a la izquierda, valor alineado a la derecha (ancho completo
     // del contenido) para que quepan las etiquetas largas sin superponerse.
+    // Cada fila reserva su propio espacio (ensureSpace) porque la cantidad
+    // de filas varía según la mano de obra cargada y qué porcentajes/montos
+    // tenga este presupuesto en particular.
     var totalsRight = pageW - MARGIN.right;
     function totalRow(label, value, opts) {
       opts = opts || {};
       var size = opts.size || 10;
+      ensureSpace(size + 8);
       doc.text(pageIdx, MARGIN.left, y, label, { size: size, bold: !!opts.bold });
       doc.text(pageIdx, totalsRight - doc.textWidth(value, size, !!opts.bold), y, value, { size: size, bold: !!opts.bold });
       y += size + 8;
     }
     doc.line(pageIdx, MARGIN.left, y, totalsRight, y, { width: 0.5, color: [0.7, 0.7, 0.7] });
     y += 14;
-    totalRow('Materiales', money(presupuesto.totalMateriales));
-    totalRow('Mano de obra (' + (presupuesto.porcentaje || 0) + '%)', money(presupuesto.manoObra));
+    totalRow('Materia prima directa', money(presupuesto.totalMateriales));
+    (presupuesto.manoObraItems || []).forEach(function (it) {
+      ensureSpace(16);
+      var etiqueta = '  · ' + (it.rol || '') + ' (' + it.horas + ' h × ' + money(it.tarifaHora) + '/h)';
+      var valor = money(it.subtotal);
+      doc.text(pageIdx, MARGIN.left, y, etiqueta, { size: 8.5, color: [0.45, 0.45, 0.45] });
+      doc.text(pageIdx, totalsRight - doc.textWidth(valor, 8.5, false), y, valor, { size: 8.5, color: [0.45, 0.45, 0.45] });
+      y += 14;
+    });
+    totalRow('Mano de obra directa', money(presupuesto.manoObra));
+    if (presupuesto.costosDirectosProyectoPorcentaje) totalRow('Costos directos de proyecto (' + presupuesto.costosDirectosProyectoPorcentaje + '%)', money(presupuesto.costosDirectosProyecto));
+    if (presupuesto.ingenieriaDisenoPorcentaje) totalRow('Ingeniería y diseño (' + presupuesto.ingenieriaDisenoPorcentaje + '%)', money(presupuesto.ingenieriaDiseno));
     if (presupuesto.cifPorcentaje) totalRow('Costos indirectos de fabricación (' + presupuesto.cifPorcentaje + '%)', money(presupuesto.cif));
-    if (presupuesto.gastosAdminPorcentaje) totalRow('Gastos de administración y comercialización (' + presupuesto.gastosAdminPorcentaje + '%)', money(presupuesto.gastosAdmin));
+    if (presupuesto.gastosAdminPorcentaje) totalRow('Gastos de administración (' + presupuesto.gastosAdminPorcentaje + '%)', money(presupuesto.gastosAdmin));
+    if (presupuesto.gastosComerciales) totalRow('Gastos comerciales', money(presupuesto.gastosComerciales));
+    if (presupuesto.gastosFinancieros) totalRow('Gastos financieros', money(presupuesto.gastosFinancieros));
     if (presupuesto.margenPorcentaje) totalRow('Margen de utilidad (' + presupuesto.margenPorcentaje + '%)', money(presupuesto.margen));
     if (presupuesto.ivaPorcentaje) totalRow('IVA (' + presupuesto.ivaPorcentaje + '%)', money(presupuesto.iva));
     y += 4;
+    ensureSpace(60);
     doc.line(pageIdx, MARGIN.left, y, totalsRight, y, { width: 1, color: [0.106, 0.173, 0.388] });
     y += 16;
     totalRow('TOTAL', money(presupuesto.total), { size: 13, bold: true });

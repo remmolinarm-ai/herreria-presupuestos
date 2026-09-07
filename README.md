@@ -41,32 +41,48 @@ Funciona sin conexión y no depende de ninguna librería externa.
    solo un aviso visual (en rojo), no bloquea nada.
 3. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
    poder mandarle el presupuesto después), describí el trabajo (texto
-   libre) y
-   sumá los materiales que se van a usar con su cantidad. El presupuesto
-   se calcula por capas, cada una sobre el subtotal acumulado:
+   libre) y sumá los materiales que se van a usar con su cantidad. El
+   presupuesto se calcula por capas, cada una sobre el subtotal
+   acumulado (costeo de una metalmecánica estructural):
 
    ```
-   Materiales directos
-   + Mano de obra directa
-   = Costo de producción
-   + Costos indirectos de fabricación (CIF)
-   + Gastos de administración y comercialización
+   Materia prima directa (lista de materiales)
+   + Mano de obra directa (itemizada por rol: horas × tarifa/hora)
+   = Costo directo base
+   + Costos directos de proyecto % (fletes, subcontratos, alquiler de equipos)
+   + Ingeniería y diseño % (cálculo estructural, software)
+   = Costo directo total
+   + Costos indirectos de fabricación (CIF) %
+   = Costo con CIF
+   + Gastos de administración %
+   = Costo con administración
+   + Gastos comerciales $ (comisión, viáticos — monto a mano)
+   + Gastos financieros $ (intereses, gastos bancarios — monto a mano)
    = Costo total
-   + Margen de utilidad
+   + Margen de utilidad %
    = Precio de venta
-   + IVA
+   + IVA %
    = Total
    ```
 
-   Los 5 porcentajes (Mano de obra, CIF, Gastos admin., Margen, IVA) se
-   cargan directo en cada presupuesto, editable libremente para esa
-   cotización puntual. Dejar uno en 0 hace que no aparezca ni en el
-   presupuesto ni en el PDF. Si un material tiene más de una forma de
-   venta (ej: una chapa por kg o entera), aparece un selector "Vender
-   por" para elegir cuál usar en esa línea. Los totales y el PDF se
-   muestran en pesos (con el equivalente en dólares al lado) porque es
-   lo que ve el cliente final. Al guardar, genera y descarga
-   automáticamente el PDF con el desglose completo.
+   La mano de obra se carga por rol (soldador, armador, operario de
+   corte/plegado, pintor, montador, o cualquier otro que escribas), con
+   horas y tarifa por hora — se suman todos los roles usados en el
+   trabajo. Los porcentajes (costos directos de proyecto, ingeniería y
+   diseño, CIF, gastos admin., margen, IVA) y los montos de gastos
+   comerciales/financieros se cargan directo en cada presupuesto,
+   editables libremente para esa cotización puntual — los porcentajes
+   vienen precargados con los valores por defecto de Ajustes cuando
+   existen. Dejar un porcentaje en 0 (o un monto vacío) hace que no
+   aparezca ni en el presupuesto ni en el PDF. Si un material tiene más
+   de una forma de venta (ej: una chapa por kg o entera), aparece un
+   selector "Vender por" para elegir cuál usar en esa línea. Los totales
+   y el PDF se muestran en pesos (con el equivalente en dólares al lado)
+   porque es lo que ve el cliente final. Al guardar, genera y descarga
+   automáticamente el PDF con el desglose completo (incluida la mano de
+   obra itemizada por rol) — el mensaje de WhatsApp/email al cliente,
+   en cambio, solo muestra el total y la descripción del trabajo, nunca
+   el desglose interno de costos.
 4. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF, eliminarlos, o **enviarlos por WhatsApp o email** al
    cliente — abre WhatsApp/el programa de mail con un mensaje ya escrito
