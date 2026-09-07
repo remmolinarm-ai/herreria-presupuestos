@@ -30,8 +30,10 @@
         '</p>';
     }
     return '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
-        'Planilla con columnas <strong>Nombre | Unidad | Precio</strong> (fila 1 = encabezado, se ignora). ' +
-        'Actualiza el precio de los materiales que coincidan por nombre y agrega los que no existan todavía.' +
+        'Planilla con columnas <strong>Material | Unidad | Cant./pieza | Kg/pieza | Precio ($)</strong> ' +
+        '(fila 1 = encabezado, se ignora; Cant./pieza y Kg/pieza se pueden dejar en blanco). El precio va en ' +
+        'pesos, igual que en la lista de la app — hace falta tener cargada la cotización del dólar en la ' +
+        'tarjeta de arriba para poder importar. Actualiza los materiales que coincidan por nombre y agrega los que no existan todavía.' +
       '</p>' +
       '<div class="field"><label for="aj-sheets-url">Link de la planilla</label>' +
         '<input class="input" id="aj-sheets-url" placeholder="https://docs.google.com/spreadsheets/d/…" value="' + Util.escapeHtml(empresa.sheetsUrl || '') + '"></div>' +

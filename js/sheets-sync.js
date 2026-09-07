@@ -5,7 +5,12 @@
  * a la API REST de Sheets directo desde el navegador con ese token.
  *
  * Formato esperado de la planilla (primera hoja, fila 1 = encabezado):
- *   Columna A: Nombre   |   Columna B: Unidad   |   Columna C: Precio
+ *   A: Material | B: Unidad | C: Cant./pieza | D: Kg/pieza | E: Precio ($)
+ * Cant./pieza y Kg/pieza son opcionales (se pueden dejar en blanco). El
+ * precio se carga en pesos, igual que en la lista de la app — se
+ * convierte a dólares para guardarlo con la cotización del momento de la
+ * importación (por eso hace falta tener cargada la cotización del dólar
+ * en Ajustes antes de importar).
  */
 (function (global) {
   'use strict';
@@ -77,7 +82,12 @@
   function actualizarDesdeSheet(urlOId, rango) {
     var sheetId = extraerId(urlOId);
     if (!sheetId) return Promise.reject(new Error('No pude reconocer el ID de la planilla. Pegá el link completo de Google Sheets.'));
-    rango = rango && rango.trim() ? rango.trim() : 'A2:C1000';
+    rango = rango && rango.trim() ? rango.trim() : 'A2:E5000';
+
+    var cotizacion = global.Dolar ? global.Dolar.valorActual() : 0;
+    if (!(cotizacion > 0)) {
+      return Promise.reject(new Error('Cargá la cotización del dólar en Ajustes antes de importar (los precios de la planilla están en pesos).'));
+    }
 
     return obtenerTokenSheets()
       .then(function (token) { return leerFilas(sheetId, rango, token); })
@@ -90,17 +100,24 @@
         filas.forEach(function (fila) {
           var nombre = String((fila && fila[0]) || '').trim();
           var unidad = String((fila && fila[1]) || '').trim() || 'unidad';
-          var precio = Number(fila && fila[2]);
-          if (!nombre || !isFinite(precio) || precio < 0) { invalidas++; return; }
+          var cantidad = Number(fila && fila[2]) || 0;
+          var pesoUnidad = Number(fila && fila[3]) || 0;
+          var precioArs = Number(fila && fila[4]);
+          if (!nombre || !isFinite(precioArs) || precioArs < 0) { invalidas++; return; }
+          var precioUsd = precioArs / cotizacion;
 
           var existente = porNombre[normalizar(nombre)];
           if (existente) {
             global.Store.materiales.save(Object.assign({}, existente, {
-              unidad: unidad, precio: precio, actualizado: global.Store.nowISO()
+              unidad: unidad, cantidad: cantidad, pesoUnidad: pesoUnidad,
+              precioKg: 0, precio: precioUsd, actualizado: global.Store.nowISO()
             }));
             actualizados++;
           } else {
-            var nuevo = { nombre: nombre, unidad: unidad, precio: precio, actualizado: global.Store.nowISO() };
+            var nuevo = {
+              nombre: nombre, unidad: unidad, cantidad: cantidad, pesoUnidad: pesoUnidad,
+              precioKg: 0, precio: precioUsd, actualizado: global.Store.nowISO()
+            };
             global.Store.materiales.save(nuevo);
             porNombre[normalizar(nombre)] = nuevo;
             agregados++;

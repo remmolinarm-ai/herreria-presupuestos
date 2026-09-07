@@ -182,13 +182,17 @@ comprobar:
 
 En **Ajustes → Lista de precios desde Google Sheets** (visible una vez
 iniciada sesión con Google) se puede pegar el link de una planilla con
-columnas **Nombre | Unidad | Precio** (fila 1 = encabezado) y tocar
-"Actualizar precios desde Sheets": actualiza el precio de los materiales
-que coincidan por nombre y agrega los que todavía no existan. No usa
-ningún backend ni tiene costo — pide, en el momento, permiso de solo
-lectura sobre Sheets con **Google Identity Services**, independiente del
-login de Firebase (`js/sheets-sync.js`, `window.GOOGLE_OAUTH_CLIENT_ID`
-en `js/firebase-config.js`).
+columnas **Material | Unidad | Cant./pieza | Kg/pieza | Precio ($)**
+(fila 1 = encabezado; Cant./pieza y Kg/pieza se pueden dejar en blanco)
+y tocar "Actualizar precios desde Sheets": actualiza los materiales que
+coincidan por nombre y agrega los que todavía no existan. El precio se
+carga **en pesos** en la planilla (igual que en la lista de la app) y se
+convierte a dólares con la cotización cargada en ese momento en Ajustes
+— por eso hace falta tenerla cargada antes de importar. No usa ningún
+backend ni tiene costo — pide, en el momento, permiso de solo lectura
+sobre Sheets con **Google Identity Services**, independiente del login
+de Firebase (`js/sheets-sync.js`, `window.GOOGLE_OAUTH_CLIENT_ID` en
+`js/firebase-config.js`).
 
 Ya está habilitado en el proyecto **carpinteria-metalica-c2c15**: la
 Google Sheets API estaba activa y el "Web client (auto created by Google
@@ -216,7 +220,8 @@ Tampoco se pudo probar esto desde este entorno (mismo motivo que el login
 de Google).
 
 1. Crear una planilla de prueba en Google Sheets con columnas
-   `Nombre | Unidad | Precio` y un par de filas de ejemplo.
+   `Material | Unidad | Cant./pieza | Kg/pieza | Precio ($)` y un par
+   de filas de ejemplo (con el precio en pesos).
 2. En la app, Ajustes → pegar el link → "Actualizar precios desde
    Sheets". La primera vez pide confirmar el permiso de lectura sobre
    Sheets — puede aparecer el cartel de "Google no verificó esta app"
