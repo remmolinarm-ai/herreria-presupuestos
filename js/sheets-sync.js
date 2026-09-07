@@ -4,7 +4,10 @@
  * Google Identity Services (independiente del login de Firebase) y llama
  * a la API REST de Sheets directo desde el navegador con ese token.
  *
- * Formato esperado de la planilla (primera hoja, fila 1 = encabezado):
+ * La planilla puede tener varias solapas — cada una se trata como un
+ * grupo de materiales (ej. "Ángulos", "Chapas", "Pintura") y ese nombre
+ * queda cargado como Grupo en cada material de esa solapa. En cada
+ * solapa, fila 1 = encabezado, y las columnas son:
  *   A: Material | B: Unidad | C: Cant./pieza | D: Kg/pieza | E: Precio ($)
  * Cant./pieza y Kg/pieza son opcionales (se pueden dejar en blanco). El
  * precio se carga en pesos, igual que en la lista de la app — se
@@ -79,25 +82,61 @@
     }).then(function (data) { return data.values || []; });
   }
 
-  function actualizarDesdeSheet(urlOId, rango) {
+  function listarHojas(sheetId, token) {
+    var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + encodeURIComponent(sheetId) + '?fields=sheets.properties.title';
+    return fetch(url, { headers: { Authorization: 'Bearer ' + token } }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return null; }).then(function (data) {
+          throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status));
+        });
+      }
+      return res.json();
+    }).then(function (data) {
+      return (data.sheets || []).map(function (s) { return s.properties.title; });
+    });
+  }
+
+  function comillarNombreHoja(nombre) {
+    return "'" + String(nombre).replace(/'/g, "''") + "'";
+  }
+
+  function actualizarDesdeSheet(urlOId, rangoManual) {
     var sheetId = extraerId(urlOId);
     if (!sheetId) return Promise.reject(new Error('No pude reconocer el ID de la planilla. Pegá el link completo de Google Sheets.'));
-    rango = rango && rango.trim() ? rango.trim() : 'A2:E5000';
 
     var cotizacion = global.Dolar ? global.Dolar.valorActual() : 0;
     if (!(cotizacion > 0)) {
       return Promise.reject(new Error('Cargá la cotización del dólar en Ajustes antes de importar (los precios de la planilla están en pesos).'));
     }
 
-    return obtenerTokenSheets()
-      .then(function (token) { return leerFilas(sheetId, rango, token); })
-      .then(function (filas) {
-        var materiales = global.Store.materiales.getAll();
-        var porNombre = {};
-        materiales.forEach(function (m) { porNombre[normalizar(m.nombre)] = m; });
+    return obtenerTokenSheets().then(function (token) {
+      if (rangoManual && rangoManual.trim()) {
+        return leerFilas(sheetId, rangoManual.trim(), token).then(function (filas) {
+          return [{ grupo: '', filas: filas }];
+        });
+      }
+      // Sin rango manual: se lee cada solapa de la planilla y su nombre
+      // queda como Grupo de los materiales que trae.
+      return listarHojas(sheetId, token).then(function (titulos) {
+        return Promise.all(titulos.map(function (titulo) {
+          var rango = comillarNombreHoja(titulo) + '!A2:E5000';
+          return leerFilas(sheetId, rango, token)
+            .then(function (filas) { return { grupo: titulo, filas: filas }; })
+            .catch(function (err) {
+              console.warn('No se pudo leer la solapa "' + titulo + '": ' + err.message);
+              return { grupo: titulo, filas: [] };
+            });
+        }));
+      });
+    }).then(function (hojas) {
+      var materiales = global.Store.materiales.getAll();
+      var porNombre = {};
+      materiales.forEach(function (m) { porNombre[normalizar(m.nombre)] = m; });
 
-        var agregados = 0, actualizados = 0, invalidas = 0;
-        filas.forEach(function (fila) {
+      var agregados = 0, actualizados = 0, invalidas = 0, total = 0;
+      hojas.forEach(function (hoja) {
+        hoja.filas.forEach(function (fila) {
+          total++;
           var nombre = String((fila && fila[0]) || '').trim();
           var unidad = String((fila && fila[1]) || '').trim() || 'unidad';
           var cantidad = Number(fila && fila[2]) || 0;
@@ -105,27 +144,26 @@
           var precioArs = Number(fila && fila[4]);
           if (!nombre || !isFinite(precioArs) || precioArs < 0) { invalidas++; return; }
           var precioUsd = precioArs / cotizacion;
+          var datos = {
+            unidad: unidad, grupo: hoja.grupo, cantidad: cantidad, pesoUnidad: pesoUnidad,
+            precioKg: 0, precio: precioUsd, actualizado: global.Store.nowISO()
+          };
 
           var existente = porNombre[normalizar(nombre)];
           if (existente) {
-            global.Store.materiales.save(Object.assign({}, existente, {
-              unidad: unidad, cantidad: cantidad, pesoUnidad: pesoUnidad,
-              precioKg: 0, precio: precioUsd, actualizado: global.Store.nowISO()
-            }));
+            global.Store.materiales.save(Object.assign({}, existente, datos));
             actualizados++;
           } else {
-            var nuevo = {
-              nombre: nombre, unidad: unidad, cantidad: cantidad, pesoUnidad: pesoUnidad,
-              precioKg: 0, precio: precioUsd, actualizado: global.Store.nowISO()
-            };
+            var nuevo = Object.assign({ nombre: nombre }, datos);
             global.Store.materiales.save(nuevo);
             porNombre[normalizar(nombre)] = nuevo;
             agregados++;
           }
         });
-
-        return { agregados: agregados, actualizados: actualizados, invalidas: invalidas, total: filas.length };
       });
+
+      return { agregados: agregados, actualizados: actualizados, invalidas: invalidas, total: total, hojas: hojas.length };
+    });
   }
 
   global.SheetsSync = { actualizarDesdeSheet: actualizarDesdeSheet, extraerId: extraerId };

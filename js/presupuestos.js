@@ -21,6 +21,19 @@
     return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
 
+  // Descuenta del stock de cada material lo que se usó en el presupuesto,
+  // convirtiendo la cantidad vendida (por kg, entera o por metro) a piezas
+  // en la unidad propia del material. Deja seguir aunque el stock quede
+  // negativo — eso queda como aviso visual en la lista de Materiales.
+  function descontarStock(items) {
+    items.forEach(function (it) {
+      var mat = Store.materiales.get(it.materialId);
+      if (!mat) return;
+      var piezas = Precios.aPiezas(mat, it.basis, it.cantidad);
+      Store.materiales.save(Object.assign({}, mat, { stock: (Number(mat.stock) || 0) - piezas }));
+    });
+  }
+
   function filtrarMateriales(materiales, query) {
     var q = normalizar(query).trim();
     if (!q) return [];
@@ -310,6 +323,7 @@
           materialId: material.id,
           nombre: material.nombre,
           unidad: unidadLinea,
+          basis: opcion.basis,
           precioUnitario: precioUnitarioArs,
           precioUnitarioUsd: precioUnitarioUsd,
           cantidad: cantidad,
@@ -372,6 +386,7 @@
           condiciones: empresa.condiciones
         };
         Store.presupuestos.save(presupuesto);
+        descontarStock(estado.items);
         BudgetPDF.descargar(presupuesto, empresa);
         Util.toast('Presupuesto N° ' + presupuesto.numero + ' guardado');
         estado = estadoInicial();

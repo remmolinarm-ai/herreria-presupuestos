@@ -30,7 +30,9 @@
         '</p>';
     }
     return '<p style="font-size:0.82rem;color:var(--steel-500);margin-bottom:12px;">' +
-        'Planilla con columnas <strong>Material | Unidad | Cant./pieza | Kg/pieza | Precio ($)</strong> ' +
+        'Lee <strong>todas las solapas</strong> de la planilla — cada una se carga como un grupo de materiales ' +
+        '(ej. una solapa "Ángulos", otra "Chapas"). En cada solapa, columnas ' +
+        '<strong>Material | Unidad | Cant./pieza | Kg/pieza | Precio ($)</strong> ' +
         '(fila 1 = encabezado, se ignora; Cant./pieza y Kg/pieza se pueden dejar en blanco). El precio va en ' +
         'pesos, igual que en la lista de la app — hace falta tener cargada la cotización del dólar en la ' +
         'tarjeta de arriba para poder importar. Actualiza los materiales que coincidan por nombre y agrega los que no existan todavía.' +
@@ -182,8 +184,9 @@
         sheetsBtn.disabled = true;
         sheetsBtn.textContent = 'Actualizando…';
         global.SheetsSync.actualizarDesdeSheet(url).then(function (r) {
-          Util.toast('Listo: ' + r.actualizados + ' actualizados, ' + r.agregados + ' nuevos' + (r.invalidas ? ', ' + r.invalidas + ' filas inválidas' : ''));
+          Util.toast('Listo (' + r.hojas + (r.hojas === 1 ? ' solapa' : ' solapas') + '): ' + r.actualizados + ' actualizados, ' + r.agregados + ' nuevos' + (r.invalidas ? ', ' + r.invalidas + ' filas inválidas' : ''));
           if (global.VistaMateriales) global.VistaMateriales.renderLista();
+          if (global.VistaDashboard) global.VistaDashboard.render();
         }).catch(function (err) {
           console.error(err);
           Util.toast('No se pudo actualizar: ' + err.message);

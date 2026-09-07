@@ -2,7 +2,9 @@
   'use strict';
 
   var REFRESH = {
+    dashboard: function () { VistaDashboard.render(); },
     materiales: function () { VistaMateriales.renderLista(); },
+    stock: function () { VistaStock.render(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
     ajustes: function () { VistaAjustes.init(); }
@@ -32,7 +34,9 @@
   }
 
   function refrescarTodo() {
+    VistaDashboard.render();
     VistaMateriales.renderLista();
+    VistaStock.render();
     VistaNuevo.init();
     VistaHistorial.renderLista();
     VistaAjustes.init();
@@ -47,7 +51,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    VistaDashboard.init();
     VistaMateriales.init();
+    VistaStock.init();
     VistaNuevo.init();
     VistaHistorial.init();
     VistaAjustes.init();
@@ -57,8 +63,16 @@
     // directamente, que puede reemplazarse por una versión Firestore al
     // iniciar sesión) para refrescar la pantalla ante cualquier cambio,
     // sea de este dispositivo o de otro sincronizado por la nube.
-    Store.subscribe('materiales', function () { VistaMateriales.renderLista(); VistaNuevo.render(); });
-    Store.subscribe('presupuestos', function () { VistaHistorial.renderLista(); });
+    Store.subscribe('materiales', function () {
+      VistaMateriales.renderLista();
+      VistaStock.render();
+      VistaDashboard.render();
+      VistaNuevo.render();
+    });
+    Store.subscribe('presupuestos', function () {
+      VistaHistorial.renderLista();
+      VistaDashboard.render();
+    });
     Store.subscribe('empresa', function () {
       VistaAjustes.init();
       VistaMateriales.renderLista();
@@ -81,7 +95,7 @@
     }
     if (navBackdrop) navBackdrop.addEventListener('click', cerrarNav);
 
-    mostrarVista('materiales');
+    mostrarVista('dashboard');
     registrarServiceWorker();
     if (global.FirebaseSync) global.FirebaseSync.init();
 

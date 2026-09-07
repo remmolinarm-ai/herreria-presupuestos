@@ -48,5 +48,18 @@
     return op.length ? op[0].precioUsd : 0;
   }
 
-  global.Precios = { opciones: opciones, precioPrincipal: precioPrincipal };
+  // Convierte una cantidad vendida (según la forma de venta elegida) a
+  // "piezas" en la unidad propia del material, para poder descontar del
+  // stock sin importar si esa línea se vendió por kg, entera o por metro.
+  function aPiezas(material, basis, cantidad) {
+    var m = material || {};
+    var pesoUnidad = Number(m.pesoUnidad) || 0;
+    var cantidadPorPieza = Number(m.cantidad) || 0;
+    var n = Number(cantidad) || 0;
+    if (basis === 'medida' && cantidadPorPieza > 0) return n / cantidadPorPieza;
+    if (basis === 'kg' && pesoUnidad > 0) return n / pesoUnidad;
+    return n;
+  }
+
+  global.Precios = { opciones: opciones, precioPrincipal: precioPrincipal, aPiezas: aPiezas };
 })(window);

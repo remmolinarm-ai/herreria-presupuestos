@@ -6,11 +6,16 @@ Funciona sin conexión y no depende de ninguna librería externa.
 
 ## Cómo usar la app
 
-1. **Materiales**: cargá cada material con su unidad (m, kg, unidad, chapa,
-   barra…). Los precios se cargan **en dólares** (no se desactualizan con la
-   inflación) y se muestran siempre junto a su equivalente en pesos, según
-   la cotización del dólar oficial (ver Ajustes). Hay dos formas de cargar
-   el precio:
+1. **Dashboard**: pantalla de inicio con presupuestos y facturado del mes,
+   ventas de los últimos 6 meses, y stock por grupo de materiales (cuántos
+   materiales de cada grupo están sin stock cargado).
+2. **Materiales**: cargá cada material con su unidad (m, kg, unidad, chapa,
+   barra…), un **grupo** opcional para organizarlos (ej: Ángulos, Chapas,
+   Pintura — se usa en el Dashboard y al importar desde Sheets) y su
+   **stock actual**. Los precios se cargan **en dólares** (no se
+   desactualizan con la inflación) y se muestran siempre junto a su
+   equivalente en pesos, según la cotización del dólar oficial (ver
+   Ajustes). Hay dos formas de cargar el precio:
    - **Por peso** (para barras y chapas): completá cuántas unidades de
      medida tiene la pieza completa (ej: 6 metros por barra — dejalo en
      blanco si no aplica, como en una chapa), el peso de esa pieza en kg y
@@ -23,7 +28,15 @@ Funciona sin conexión y no depende de ninguna librería externa.
 
    Se puede editar en cualquier momento; queda registrada la fecha de la
    última actualización.
-2. **Cotizador**: elegí cliente, describí el trabajo (texto libre) y
+3. **Stock**: cargar entradas de stock nuevo — a mano (buscás el material,
+   ponés cuánto entró) o con ayuda de una foto del remito (ver más abajo).
+   Al guardar un presupuesto, el stock del material vendido se descuenta
+   solo, convirtiendo la cantidad según cómo se vendió esa línea (si el
+   cotizador vendió por metro pero el material se stockea por barra
+   entera, descuenta la fracción de barra correspondiente). El stock
+   puede quedar en negativo — es solo un aviso visual (en rojo) de que
+   convendría revisarlo, no bloquea la venta.
+4. **Cotizador**: elegí cliente, describí el trabajo (texto libre) y
    sumá los materiales que se van a usar con su cantidad. El presupuesto
    se calcula por capas, cada una sobre el subtotal acumulado:
 
@@ -49,13 +62,13 @@ Funciona sin conexión y no depende de ninguna librería externa.
    muestran en pesos (con el equivalente en dólares al lado) porque es
    lo que ve el cliente final. Al guardar, genera y descarga
    automáticamente el PDF con el desglose completo.
-3. **Historial**: todos los presupuestos guardados, con opción de volver a
+5. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF o eliminarlos.
-4. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos y datos de la empresa) en un archivo `.json`.
-5. **Botón de chat**: preguntá el precio de un material por nombre o
+7. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -178,6 +191,32 @@ comprobar:
    las reglas de seguridad se hayan publicado (paso anterior) y que haya
    conexión a internet en ese momento.
 
+## Stock: carga a mano y foto del remito (OCR)
+
+En **Stock** se puede cargar stock nuevo de dos formas:
+
+- **A mano**: buscás el material (igual que en el cotizador) y ponés
+  cuánto entró. Se arma una lista de lo que vas cargando y se confirma
+  todo junto.
+- **Foto del remito**: elegís una foto (o sacás una con la cámara del
+  celular) y la app lee el texto con **Tesseract.js**, una librería de
+  reconocimiento de texto que corre 100% en el navegador — no manda la
+  imagen a ningún servidor ni tiene costo. Se carga sola la primera vez
+  que se usa (desde un CDN, necesita internet esa vez). Después intenta
+  reconocer qué línea del texto corresponde a qué material ya cargado (por
+  nombre) y qué número es la cantidad, y arma la misma lista de arriba
+  para revisar antes de confirmar.
+
+  **Esto es asistencia, no magia**: el reconocimiento de texto en fotos es
+  bastante menos preciso que un servicio de IA pago, sobre todo con
+  remitos manuscritos, mal escaneados o con formatos raros — a veces no
+  va a reconocer nada, o va a mezclar cantidades. Siempre hay que revisar
+  la lista antes de tocar "Confirmar carga de stock". No fue posible
+  probar el reconocimiento con una foto real desde este entorno de
+  desarrollo (sin salida a internet para bajar la librería), pero la
+  lógica de coincidencia de texto contra los nombres de materiales sí se
+  probó con texto de ejemplo.
+
 ## Actualizar precios desde Google Sheets
 
 En **Ajustes → Lista de precios desde Google Sheets** (visible una vez
@@ -259,6 +298,8 @@ js/
   budget-pdf.js         Arma el PDF de un presupuesto sobre pdf-lite.js
   materiales.js         Pantalla Lista de precios
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
+  dashboard.js          Pantalla Dashboard (ventas por mes, stock por grupo)
+  stock.js              Pantalla Stock (carga a mano + OCR de remitos)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
   asistente.js          Buscador de precios en lenguaje natural
   app.js                Navegación entre pantallas e inicialización

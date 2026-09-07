@@ -1,3 +1,8 @@
+/* Sin esto, cualquier elemento con [hidden] Y una clase que fija su
+   propio "display" (ej. .btn) queda visible igual: a igual especificidad,
+   una regla de autor le gana a la del navegador. */
+[hidden] { display: none !important; }
+
 :root {
   --ink-900: #1a1a1a;
   --ink-800: #292929;

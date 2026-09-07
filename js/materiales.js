@@ -3,9 +3,16 @@
 
   var editandoId = null;
   var busqueda = '';
+  var grupoFiltro = '';
 
   function normalizar(str) {
     return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
+  function gruposExistentes() {
+    var set = {};
+    Store.materiales.getAll().forEach(function (m) { if (m.grupo) set[m.grupo] = true; });
+    return Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'es'); });
   }
 
   function renderForm() {
@@ -19,6 +26,8 @@
         '<form id="mat-form">' +
           '<div class="field"><label for="mat-nombre">Nombre</label>' +
             '<input class="input" id="mat-nombre" required placeholder="Ej: Caño estructural 20x20x1.6mm" value="' + Util.escapeHtml(mat ? mat.nombre : '') + '"></div>' +
+          '<div class="field"><label for="mat-grupo">Grupo (ej: Ángulos, Chapas, Pintura)</label>' +
+            '<input class="input" id="mat-grupo" list="mat-grupos-datalist" placeholder="Opcional" value="' + Util.escapeHtml(mat ? mat.grupo : '') + '"></div>' +
           '<div class="field-row">' +
             '<div class="field"><label for="mat-unidad">Unidad</label>' +
               '<input class="input" id="mat-unidad" required placeholder="m, kg, unidad, chapa…" value="' + Util.escapeHtml(mat ? mat.unidad : '') + '"></div>' +
@@ -34,11 +43,16 @@
           '</div>' +
           '<div class="field"><label for="mat-precio">Precio manual (US$) — si no se vende por peso</label>' +
             '<input class="input" id="mat-precio" type="number" min="0" step="0.01" placeholder="Opcional" value="' + (mat && mat.precio ? mat.precio : '') + '"></div>' +
+          '<div class="field"><label for="mat-stock">Stock actual</label>' +
+            '<input class="input" id="mat-stock" type="number" min="0" step="0.01" placeholder="0" value="' + (mat && mat.stock ? mat.stock : '') + '"></div>' +
           '<div class="form-actions">' +
             '<button type="button" class="btn btn-outline" id="mat-cancelar">Cancelar</button>' +
             '<button type="submit" class="btn btn-primary">Guardar</button>' +
           '</div>' +
         '</form>' +
+        '<datalist id="mat-grupos-datalist">' +
+          gruposExistentes().map(function (g) { return '<option value="' + Util.escapeHtml(g) + '">'; }).join('') +
+        '</datalist>' +
       '</div>';
 
     document.getElementById('mat-cancelar').addEventListener('click', function () {
@@ -48,11 +62,13 @@
     document.getElementById('mat-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var nombre = document.getElementById('mat-nombre').value.trim();
+      var grupo = document.getElementById('mat-grupo').value.trim();
       var unidad = document.getElementById('mat-unidad').value.trim();
       var cantidad = parseFloat(document.getElementById('mat-cantidad').value) || 0;
       var pesoUnidad = parseFloat(document.getElementById('mat-peso').value) || 0;
       var precioKg = parseFloat(document.getElementById('mat-precio-kg').value) || 0;
       var precio = parseFloat(document.getElementById('mat-precio').value) || 0;
+      var stock = parseFloat(document.getElementById('mat-stock').value) || 0;
       if (!nombre || !unidad) {
         Util.toast('Completá nombre y unidad');
         return;
@@ -63,11 +79,13 @@
       }
       var item = mat ? Object.assign({}, mat) : {};
       item.nombre = nombre;
+      item.grupo = grupo;
       item.unidad = unidad;
       item.cantidad = cantidad;
       item.pesoUnidad = pesoUnidad;
       item.precioKg = precioKg;
       item.precio = precio;
+      item.stock = stock;
       item.actualizado = Store.nowISO();
       Store.materiales.save(item);
       Util.toast('Material guardado');
@@ -96,31 +114,44 @@
     }).join('');
   }
 
+  function renderFiltroGrupos() {
+    var sel = document.getElementById('mat-grupo-filtro');
+    if (!sel) return;
+    var actual = sel.value;
+    sel.innerHTML = '<option value="">Todos los grupos</option>' +
+      gruposExistentes().map(function (g) { return '<option value="' + Util.escapeHtml(g) + '">' + Util.escapeHtml(g) + '</option>'; }).join('');
+    sel.value = actual;
+  }
+
   function renderLista() {
     var cont = document.getElementById('mat-lista');
+    renderFiltroGrupos();
     var materiales = Store.materiales.getAll()
       .filter(function (m) { return !busqueda || normalizar(m.nombre).indexOf(normalizar(busqueda)) !== -1; })
+      .filter(function (m) { return !grupoFiltro || m.grupo === grupoFiltro; })
       .sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); });
 
     if (materiales.length === 0) {
       cont.innerHTML = '<p class="empty-state">' +
-        (busqueda ? 'No hay materiales que coincidan con la búsqueda.' : 'Todavía no cargaste materiales. Tocá "+ Material" para agregar el primero.') +
+        (busqueda || grupoFiltro ? 'No hay materiales que coincidan.' : 'Todavía no cargaste materiales. Tocá "+ Material" para agregar el primero.') +
         '</p>';
       return;
     }
 
     cont.innerHTML =
       '<div class="table-wrap"><table class="data-table">' +
-        '<thead><tr><th>Material</th><th>Unidad</th><th class="hide-narrow">Cant./pieza</th><th class="hide-narrow">Kg/pieza</th><th>Precio ($)</th><th class="hide-narrow">Equiv. (US$)</th><th class="hide-narrow">Actualizado</th><th></th></tr></thead>' +
+        '<thead><tr><th>Material</th><th class="hide-narrow">Grupo</th><th>Unidad</th><th class="hide-narrow">Cant./pieza</th><th class="hide-narrow">Kg/pieza</th><th>Precio ($)</th><th class="hide-narrow">Equiv. (US$)</th><th>Stock</th><th class="hide-narrow">Actualizado</th><th></th></tr></thead>' +
         '<tbody>' +
         materiales.map(function (m) {
           return '<tr data-id="' + m.id + '">' +
             '<td class="cell-title cell-wrap">' + Util.escapeHtml(m.nombre) + '</td>' +
+            '<td class="cell-sub hide-narrow">' + Util.escapeHtml(m.grupo || '—') + '</td>' +
             '<td>' + Util.escapeHtml(m.unidad) + '</td>' +
             '<td class="hide-narrow">' + (m.cantidad ? m.cantidad : '—') + '</td>' +
             '<td class="hide-narrow">' + (m.pesoUnidad ? m.pesoUnidad : '—') + '</td>' +
             '<td>' + celdaPrecioArs(m) + '</td>' +
             '<td class="cell-sub hide-narrow">' + celdaPrecioUsd(m) + '</td>' +
+            '<td' + (Number(m.stock) > 0 ? '' : ' style="color:var(--danger);font-weight:700;"') + '>' + (m.stock ? m.stock : '0') + '</td>' +
             '<td class="cell-sub hide-narrow">' + (m.actualizado ? Util.fechaCorta(m.actualizado) : '—') + '</td>' +
             '<td class="col-actions">' +
               '<button class="icon-btn" data-action="editar" aria-label="Editar">' + Util.iconPencil() + '</button>' +
@@ -166,7 +197,17 @@
       busqueda = e.target.value;
       renderLista();
     });
+    document.getElementById('mat-grupo-filtro').addEventListener('change', function (e) {
+      grupoFiltro = e.target.value;
+      renderLista();
+    });
   }
 
-  global.VistaMateriales = { init: init, renderLista: renderLista };
+  function abrirEdicion(id) {
+    editandoId = id;
+    renderForm();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  global.VistaMateriales = { init: init, renderLista: renderLista, abrirEdicion: abrirEdicion };
 })(window);
