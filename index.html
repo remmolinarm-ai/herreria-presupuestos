@@ -26,10 +26,7 @@
 
 <div class="nav-backdrop" id="nav-backdrop"></div>
 <nav class="side-nav" id="side-nav" aria-label="Navegación de la app">
-  <button class="nav-link" data-target="dashboard" aria-current="page">
-    <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="3.4" height="6.5" rx="0.8" stroke="currentColor" stroke-width="1.5"/><rect x="8.3" y="6.5" width="3.4" height="11" rx="0.8" stroke="currentColor" stroke-width="1.5"/><rect x="14.1" y="2.5" width="3.4" height="15" rx="0.8" stroke="currentColor" stroke-width="1.5"/></svg></span><span>Dashboard</span>
-  </button>
-  <button class="nav-link" data-target="materiales">
+  <button class="nav-link" data-target="materiales" aria-current="page">
     <span class="nav-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.5 3H4a1 1 0 0 0-1 1v6.5a1 1 0 0 0 .29.71l7.5 7.5a1 1 0 0 0 1.42 0l6.5-6.5a1 1 0 0 0 0-1.42l-7.5-7.5A1 1 0 0 0 10.5 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.2" cy="7.2" r="1.1" fill="currentColor"/></svg></span><span>Materiales</span>
   </button>
   <button class="nav-link" data-target="nuevo">
@@ -50,15 +47,6 @@
 </nav>
 
 <main class="app-main" id="app-main">
-
-  <!-- DASHBOARD -->
-  <section class="view" id="view-dashboard" data-view="dashboard">
-    <div class="view-head">
-      <h1>Dashboard</h1>
-      <p>Resumen de ventas y stock del taller.</p>
-    </div>
-    <div id="dashboard-container"></div>
-  </section>
 
   <!-- MATERIALES + STOCK -->
   <section class="view" id="view-materiales" data-view="materiales">
@@ -158,7 +146,6 @@
 <script src="js/materiales.js"></script>
 <script src="js/presupuestos.js"></script>
 <script src="js/ventas.js"></script>
-<script src="js/dashboard.js"></script>
 <script src="js/finanzas.js"></script>
 <script src="js/ajustes.js"></script>
 <script src="js/asistente.js"></script>

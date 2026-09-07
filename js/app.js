@@ -2,7 +2,6 @@
   'use strict';
 
   var REFRESH = {
-    dashboard: function () { VistaDashboard.render(); },
     materiales: function () { VistaMateriales.renderLista(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
@@ -35,7 +34,6 @@
   }
 
   function refrescarTodo() {
-    VistaDashboard.render();
     VistaMateriales.renderLista();
     VistaNuevo.init();
     VistaHistorial.renderLista();
@@ -53,7 +51,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    VistaDashboard.init();
     VistaMateriales.init();
     VistaNuevo.init();
     VistaHistorial.init();
@@ -68,13 +65,11 @@
     // sea de este dispositivo o de otro sincronizado por la nube.
     Store.subscribe('materiales', function () {
       VistaMateriales.renderLista();
-      VistaDashboard.render();
       VistaNuevo.render();
     });
     Store.subscribe('presupuestos', function () {
       VistaHistorial.renderLista();
       VistaVentas.render();
-      VistaDashboard.render();
       VistaFinanzas.render();
     });
     Store.subscribe('empresa', function () {
@@ -102,7 +97,7 @@
     }
     if (navBackdrop) navBackdrop.addEventListener('click', cerrarNav);
 
-    mostrarVista('dashboard');
+    mostrarVista('materiales');
     registrarServiceWorker();
     if (global.FirebaseSync) global.FirebaseSync.init();
 

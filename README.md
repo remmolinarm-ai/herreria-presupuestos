@@ -6,15 +6,10 @@ Funciona sin conexión y no depende de ninguna librería externa.
 
 ## Cómo usar la app
 
-1. **Dashboard**: pantalla de inicio con presupuestos y vendido del mes,
-   trabajos atrasados, ventas de los últimos 6 meses, **producción en
-   proceso** (cuántos trabajos vendidos hay en cada etapa: Corte,
-   Soldadura, Pintura, Terminado), y stock por grupo de materiales
-   (cuántos materiales de cada grupo están sin stock cargado).
-2. **Materiales**: lista de precios y stock, todo junto. Cargá cada
+1. **Materiales**: lista de precios y stock, todo junto. Cargá cada
    material con su unidad (m, kg, unidad, chapa, barra…), un **grupo**
-   opcional para organizarlos (ej: Ángulos, Chapas, Pintura — se usa en
-   el Dashboard y al importar desde Sheets) y su **stock actual**. Los
+   opcional para organizarlos (ej: Ángulos, Chapas, Pintura — se usa al
+   importar desde Sheets) y su **stock actual**. Los
    precios se cargan **en dólares** (no se desactualizan con la
    inflación) y se muestran siempre junto a su equivalente en pesos,
    según la cotización del dólar oficial (ver Ajustes). Hay dos formas
@@ -39,7 +34,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
    por metro pero el material se stockea por barra entera, descuenta la
    fracción de barra correspondiente). Puede quedar en negativo — es
    solo un aviso visual (en rojo), no bloquea nada.
-3. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
+2. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
    poder mandarle el presupuesto después), describí el trabajo (texto
    libre) y sumá los materiales que se van a usar con su cantidad. El
    presupuesto se calcula por capas, cada una sobre el subtotal
@@ -83,7 +78,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
    obra itemizada por rol) — el mensaje de WhatsApp/email al cliente,
    en cambio, solo muestra el total y la descripción del trabajo, nunca
    el desglose interno de costos.
-4. **Historial**: todos los presupuestos guardados, con opción de volver a
+3. **Historial**: todos los presupuestos guardados, con opción de volver a
    descargar el PDF, eliminarlos, o **enviarlos por WhatsApp o email** al
    cliente — abre WhatsApp/el programa de mail con un mensaje ya escrito
    (no hace falta backend ni cuesta nada: son los links `wa.me` y
@@ -91,7 +86,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
    desglose de costos del PDF interno — solo dice la descripción del
    trabajo y el total final, que es lo único que le importa a quien pidió
    el presupuesto.
-5. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
+4. **Ventas**: buscá una cotización (por cliente o número), opcionalmente
    ponele una fecha estimada de entrega, y marcala como vendida — ahí
    recién se descuenta el stock (ver Materiales arriba). Abajo queda la
    lista de ventas confirmadas con el **seguimiento del proceso productivo**:
@@ -100,7 +95,7 @@ Funciona sin conexión y no depende de ninguna librería externa.
    y la fecha estimada de entrega, editable — si esa fecha ya pasó y el
    trabajo no está "Entregado", se marca como **Atrasado**. También hay
    opción de deshacer la venta (repone el stock).
-6. **Finanzas**: cuatro sub-solapas con los datos del negocio agrupados
+5. **Finanzas**: cuatro sub-solapas con los datos del negocio agrupados
    según su índole:
    - **Rentabilidad**: por cada mes (últimos 6), margen bruto de las
      ventas confirmadas (el campo `margen` que ya calcula el Cotizador)
@@ -118,12 +113,12 @@ Funciona sin conexión y no depende de ninguna librería externa.
      "Registrar pago" de una cuota, el próximo vencimiento se corre un
      mes automáticamente. Si la fecha de vencimiento ya pasó y todavía
      hay saldo, se marca **Atrasado**.
-7. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos, empleados/sueldos, créditos y datos de la empresa) en un
    archivo `.json`.
-8. **Botón de chat**: preguntá el precio de un material por nombre o
+7. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -355,7 +350,6 @@ js/
                          con carga a mano y OCR de remitos)
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
   ventas.js             Pantalla Ventas (marcar cotización como vendida)
-  dashboard.js          Pantalla Dashboard (ventas por mes, stock por grupo)
   finanzas.js           Pantalla Finanzas (rentabilidad, ingresos, sueldos,
                          créditos, en sub-solapas)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)
