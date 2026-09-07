@@ -77,6 +77,7 @@
   var pagosSueldo = makeCollection('pagosSueldo');
   var creditos = makeCollection('creditos');
   var pagosCredito = makeCollection('pagosCredito');
+  var cobros = makeCollection('cobros');
 
   var CATEGORIAS_DEFAULT = [
     { nombre: 'Portones (corredizos / hojas)', porcentaje: 35 },
@@ -144,6 +145,7 @@
         pagosSueldo: global.Store.pagosSueldo.getAll(),
         creditos: global.Store.creditos.getAll(),
         pagosCredito: global.Store.pagosCredito.getAll(),
+        cobros: global.Store.cobros.getAll(),
         empresa: global.Store.empresa.get()
       }, null, 2);
     },
@@ -157,6 +159,7 @@
       if (Array.isArray(data.pagosSueldo)) global.Store.pagosSueldo.replaceAll(data.pagosSueldo);
       if (Array.isArray(data.creditos)) global.Store.creditos.replaceAll(data.creditos);
       if (Array.isArray(data.pagosCredito)) global.Store.pagosCredito.replaceAll(data.pagosCredito);
+      if (Array.isArray(data.cobros)) global.Store.cobros.replaceAll(data.cobros);
       if (data.empresa) global.Store.empresa.save(data.empresa);
     }
   };
@@ -171,6 +174,7 @@
     pagosSueldo: pagosSueldo,
     creditos: creditos,
     pagosCredito: pagosCredito,
+    cobros: cobros,
     empresa: empresa,
     backup: backup,
     ensureSeed: ensureSeed,
@@ -185,6 +189,7 @@
     _local: {
       materiales: materiales, categorias: categorias, presupuestos: presupuestos,
       empleados: empleados, pagosSueldo: pagosSueldo, creditos: creditos, pagosCredito: pagosCredito,
+      cobros: cobros,
       empresa: empresa
     }
   };

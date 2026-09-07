@@ -143,6 +143,7 @@
     var pagSueRef = db.collection('users').doc(uid).collection('pagosSueldo');
     var credRef = db.collection('users').doc(uid).collection('creditos');
     var pagCredRef = db.collection('users').doc(uid).collection('pagosCredito');
+    var cobRef = db.collection('users').doc(uid).collection('cobros');
     var empRef = db.collection('users').doc(uid);
 
     return Promise.all([matRef.limit(1).get(), catRef.limit(1).get(), preRef.limit(1).get(), empRef.get()])
@@ -173,6 +174,7 @@
         agregar(pagSueRef, local.pagosSueldo.getAll());
         agregar(credRef, local.creditos.getAll());
         agregar(pagCredRef, local.pagosCredito.getAll());
+        agregar(cobRef, local.cobros.getAll());
         batch.set(empRef, local.empresa.get());
         return batch.commit().then(function () {
           Util.toast('Los datos de este dispositivo se subieron a la nube');
@@ -193,8 +195,9 @@
       var pagSue = firestoreCollection('pagosSueldo', uid);
       var cred = firestoreCollection('creditos', uid);
       var pagCred = firestoreCollection('pagosCredito', uid);
+      var cob = firestoreCollection('cobros', uid);
       var emp = firestoreEmpresa(uid);
-      unsubsNube = [mat._unsub, cat._unsub, pre._unsub, emple._unsub, pagSue._unsub, cred._unsub, pagCred._unsub, emp._unsub];
+      unsubsNube = [mat._unsub, cat._unsub, pre._unsub, emple._unsub, pagSue._unsub, cred._unsub, pagCred._unsub, cob._unsub, emp._unsub];
       Store.materiales = mat;
       Store.categorias = cat;
       Store.presupuestos = pre;
@@ -202,6 +205,7 @@
       Store.pagosSueldo = pagSue;
       Store.creditos = cred;
       Store.pagosCredito = pagCred;
+      Store.cobros = cob;
       Store.empresa = emp;
       actualizarBadge('nube', email);
     });
@@ -216,8 +220,9 @@
     Store.pagosSueldo = Store._local.pagosSueldo;
     Store.creditos = Store._local.creditos;
     Store.pagosCredito = Store._local.pagosCredito;
+    Store.cobros = Store._local.cobros;
     Store.empresa = Store._local.empresa;
-    ['materiales', 'categorias', 'presupuestos', 'empleados', 'pagosSueldo', 'creditos', 'pagosCredito', 'empresa'].forEach(function (n) { Store.notify(n); });
+    ['materiales', 'categorias', 'presupuestos', 'empleados', 'pagosSueldo', 'creditos', 'pagosCredito', 'cobros', 'empresa'].forEach(function (n) { Store.notify(n); });
     actualizarBadge('local');
   }
 

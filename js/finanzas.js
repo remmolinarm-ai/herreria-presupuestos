@@ -77,11 +77,14 @@
     var ventas = ventasVendidas();
     var sueldos = Store.pagosSueldo.getAll();
     var creditos = Store.pagosCredito.getAll();
+    var cobros = Store.cobros.getAll();
     var meses = mesesRecientes(n);
     return meses.map(function (m) {
       var vDelMes = ventas.filter(function (p) { return claveMes(p.fechaVenta) === m.key; });
       var ingresos = vDelMes.reduce(function (a, p) { return a + (Number(p.total) || 0); }, 0);
       var margen = vDelMes.reduce(function (a, p) { return a + (Number(p.margen) || 0); }, 0);
+      var cobrado = cobros.filter(function (c) { return claveMes(c.fecha) === m.key; })
+        .reduce(function (a, c) { return a + (Number(c.monto) || 0); }, 0);
       var gastoSueldos = sueldos.filter(function (s) { return claveMes(s.fecha) === m.key; })
         .reduce(function (a, s) { return a + (Number(s.monto) || 0); }, 0);
       var gastoCreditos = creditos.filter(function (c) { return claveMes(c.fecha) === m.key; })
@@ -89,7 +92,7 @@
       var gastos = gastoSueldos + gastoCreditos;
       return {
         key: m.key, label: m.label, cantVentas: vDelMes.length,
-        ingresos: ingresos, margen: margen,
+        ingresos: ingresos, margen: margen, cobrado: cobrado,
         gastoSueldos: gastoSueldos, gastoCreditos: gastoCreditos, gastos: gastos,
         neto: margen - gastos
       };
@@ -127,13 +130,22 @@
   }
 
   // ============ Ingresos ============
+  function cobradoDePresupuesto(presupuestoId) {
+    return Store.cobros.getAll()
+      .filter(function (c) { return c.presupuestoId === presupuestoId; })
+      .reduce(function (a, c) { return a + (Number(c.monto) || 0); }, 0);
+  }
+
   function renderIngresos() {
     var datos = resumenPorMes(6);
-    var max = Math.max.apply(null, datos.map(function (d) { return d.ingresos; }).concat([0]));
+    var maxCobrado = Math.max.apply(null, datos.map(function (d) { return d.cobrado; }).concat([0]));
+    var maxFacturado = Math.max.apply(null, datos.map(function (d) { return d.ingresos; }).concat([0]));
     var ventas = ventasVendidas();
-    var totalHistorico = ventas.reduce(function (a, p) { return a + (Number(p.total) || 0); }, 0);
+    var totalFacturado = ventas.reduce(function (a, p) { return a + (Number(p.total) || 0); }, 0);
+    var totalCobrado = Store.cobros.getAll().reduce(function (a, c) { return a + (Number(c.monto) || 0); }, 0);
+    var totalPendiente = ventas.reduce(function (a, p) { return a + Math.max((Number(p.total) || 0) - cobradoDePresupuesto(p.id), 0); }, 0);
 
-    function barraHTML(label, valor, subLabel) {
+    function barraHTML(label, valor, max, subLabel) {
       var pct = max > 0 ? Math.max((valor / max) * 100, valor > 0 ? 3 : 0) : 0;
       return '<div style="margin-bottom:10px;">' +
         '<div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:3px;">' +
@@ -147,14 +159,23 @@
     }
 
     return '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">' +
-        statCard('Ingresos totales (histórico)', money(totalHistorico)) +
+        statCard('Cobrado (histórico)', money(totalCobrado)) +
+        statCard('Pendiente de cobro (histórico)', money(totalPendiente)) +
+        statCard('Facturado (histórico)', money(totalFacturado)) +
         statCard('Ventas confirmadas (histórico)', ventas.length) +
       '</div>' +
       '<div class="card">' +
-        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:2px;">Ingresos por mes</h2>' +
-        '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:12px;">Total facturado en las ventas marcadas como vendidas, por mes de venta.</p>' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:2px;">Cobrado por mes</h2>' +
+        '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:12px;">Plata que efectivamente entró (registrada como "Registrar cobro" en Ventas — señas, anticipos, saldos), por mes en que se cobró.</p>' +
         datos.map(function (d) {
-          return barraHTML(d.label, d.ingresos, money(d.ingresos) + ' · ' + d.cantVentas + (d.cantVentas === 1 ? ' venta' : ' ventas'));
+          return barraHTML(d.label, d.cobrado, maxCobrado, money(d.cobrado));
+        }).join('') +
+      '</div>' +
+      '<div class="card">' +
+        '<h2 style="font-size:0.95rem;font-weight:700;margin-bottom:2px;">Facturado por mes</h2>' +
+        '<p style="font-size:0.78rem;color:var(--steel-500);margin-bottom:12px;">Total de las ventas marcadas como vendidas, por mes de venta (no siempre coincide con lo cobrado: puede haber saldo pendiente).</p>' +
+        datos.map(function (d) {
+          return barraHTML(d.label, d.ingresos, maxFacturado, money(d.ingresos) + ' · ' + d.cantVentas + (d.cantVentas === 1 ? ' venta' : ' ventas'));
         }).join('') +
       '</div>';
   }

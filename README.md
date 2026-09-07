@@ -96,14 +96,25 @@ Funciona sin conexión y no depende de ninguna librería externa.
      Terminado → Entregado, se va actualizando a mano a medida que avanza
      el trabajo) y la fecha estimada de entrega, editable — si esa fecha
      ya pasó y el trabajo no está "Entregado", se marca como **Atrasado**.
-     También hay opción de deshacer la venta (repone el stock).
+     También hay opción de deshacer la venta (repone el stock). Cada venta
+     confirmada tiene una columna **Cobrado** con el botón **"Registrar
+     cobro"**: para cargar una seña o un pago parcial, cargá el **% del
+     total** (se calcula solo el monto, ej. 40%) o directamente un
+     **monto** a mano — se pueden cargar tantos cobros como haga falta
+     hasta completar el total, y abajo queda el historial completo de
+     cobros de todas las ventas.
    - **Rentabilidad**: por cada mes (últimos 6), margen bruto de las
      ventas confirmadas (el campo `margen` que ya calcula el Cotizador)
      menos los sueldos y cuotas de crédito pagados ese mes = rentabilidad
-     neta. También los totales del mes en curso arriba, en tarjetas.
-   - **Ingresos**: son las mismas ventas confirmadas de la sub-solapa
-     Ventas (no hay carga de ingresos aparte) — total facturado por mes,
-     en barras, más el acumulado histórico.
+     neta. También los totales del mes en curso arriba, en tarjetas. Esta
+     cuenta usa el margen de la venta completa (se factura), no lo que ya
+     se cobró — para eso está Ingresos.
+   - **Ingresos**: a diferencia de Rentabilidad, acá se distingue lo
+     **cobrado** (la plata que realmente entró, según los cobros
+     registrados en Ventas) de lo **facturado** (el total de la venta
+     apenas se confirma, aunque el cliente todavía deba parte). Muestra
+     ambos por separado, por mes y acumulado histórico, más el total
+     **pendiente de cobro** de todas las ventas confirmadas.
    - **Sueldos**: alta de empleados (nombre + sueldo mensual) y botón
      "Registrar pago" por empleado para ir guardando cada liquidación
      (monto, fecha, período, notas), con historial de pagos abajo.
@@ -116,8 +127,8 @@ Funciona sin conexión y no depende de ninguna librería externa.
 5. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
-   presupuestos, empleados/sueldos, créditos y datos de la empresa) en un
-   archivo `.json`.
+   presupuestos, cobros, empleados/sueldos, créditos y datos de la empresa)
+   en un archivo `.json`.
 6. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a

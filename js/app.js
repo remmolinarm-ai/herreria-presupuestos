@@ -73,7 +73,7 @@
       VistaMateriales.renderLista();
       VistaNuevo.render();
     });
-    ['empleados', 'pagosSueldo', 'creditos', 'pagosCredito'].forEach(function (coleccion) {
+    ['empleados', 'pagosSueldo', 'creditos', 'pagosCredito', 'cobros'].forEach(function (coleccion) {
       Store.subscribe(coleccion, function () { VistaFinanzas.render(); });
     });
 
