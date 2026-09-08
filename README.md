@@ -89,33 +89,37 @@ Funciona sin conexión y no depende de ninguna librería externa.
    desglose de costos del PDF interno — solo dice la descripción del
    trabajo y el total final, que es lo único que le importa a quien pidió
    el presupuesto.
-4. **Finanzas**: cinco sub-solapas con los datos del negocio agrupados
+4. **Proyectos**: seguimiento de producción de cada **OT** (orden de
+   trabajo) — se genera sola al marcar una cotización como vendida en
+   Finanzas → Ventas, con su propio número correlativo (OT-1, OT-2, …)
+   independiente del número de presupuesto. Arriba de todo, la **"Vista de
+   proyectos"** muestra un Gantt simple: una fila por cada OT en proceso,
+   con una barra dividida en las etapas configuradas (verde lo ya hecho,
+   azul la etapa actual, gris lo que falta, roja si está pausada) — de un
+   vistazo se ve en qué está cada proyecto. Abajo, la tabla de OTs tiene el
+   detalle: un selector de etapa (las etapas son las que definas en
+   Ajustes → Producción, ver más abajo) y la fecha estimada de entrega,
+   editable — si esa fecha ya pasó y el trabajo no llegó a la última
+   etapa, se marca como **Atrasado**. Un botón **"Pausar"** permite frenar
+   una OT en cualquier etapa cargando la **causa** (de una lista
+   configurable) y notas opcionales; al **"Reanudar"** se guarda cuánto
+   duró la parada, con un historial de paradas de todo el taller abajo de
+   la tabla (para ver qué es lo que más frena la producción).
+5. **Finanzas**: cinco sub-solapas con los datos del negocio agrupados
    según su índole:
    - **Ventas**: buscá una cotización (por cliente o número), opcionalmente
      ponele una fecha estimada de entrega, y marcala como vendida — ahí
      recién se descuenta el stock (ver Materiales arriba) y se genera la
-     **OT** (orden de trabajo) de esa venta, con su propio número
-     correlativo (OT-1, OT-2, …) independiente del número de presupuesto.
-     Arriba de todo, la **"Vista de proyectos"** muestra un Gantt simple:
-     una fila por cada OT en proceso, con una barra dividida en las etapas
-     configuradas (verde lo ya hecho, azul la etapa actual, gris lo que
-     falta, roja si está pausada) — de un vistazo se ve en qué está cada
-     proyecto. Abajo, la tabla de ventas confirmadas tiene el detalle de
-     cada OT: un selector de etapa (las etapas son las que definas en
-     Ajustes → Producción, ver más abajo) y la fecha estimada de entrega,
-     editable — si esa fecha ya pasó y el trabajo no llegó a la última
-     etapa, se marca como **Atrasado**. Un botón **"Pausar"** permite
-     frenar una OT en cualquier etapa cargando la **causa** (de una lista
-     configurable) y notas opcionales; al **"Reanudar"** se guarda cuánto
-     duró la parada, con un historial de paradas de todo el taller abajo
-     de la tabla (para ver qué es lo que más frena la producción). También
-     hay opción de deshacer la venta (repone el stock, se pierde el
-     seguimiento de esa OT). Cada venta confirmada tiene además una
-     columna **Cobrado** con el botón **"Registrar cobro"**: para cargar
-     una seña o un pago parcial, cargá el **% del total** (se calcula solo
-     el monto, ej. 40%) o directamente un **monto** a mano — se pueden
-     cargar tantos cobros como haga falta hasta completar el total, con su
-     propio historial completo de cobros de todas las ventas.
+     OT de esa venta (ver Proyectos arriba, donde se hace el seguimiento
+     de etapa y pausas). La tabla de ventas confirmadas muestra la etapa
+     actual de cada OT a modo de referencia (de solo lectura — se edita
+     en Proyectos), además de una columna **Cobrado** con el botón
+     **"Registrar cobro"**: para cargar una seña o un pago parcial, cargá
+     el **% del total** (se calcula solo el monto, ej. 40%) o directamente
+     un **monto** a mano — se pueden cargar tantos cobros como haga falta
+     hasta completar el total, con su propio historial completo de cobros
+     de todas las ventas. También hay opción de deshacer la venta (repone
+     el stock, se pierde el seguimiento de esa OT).
    - **Rentabilidad**: por cada mes (últimos 6), margen bruto de las
      ventas confirmadas (el campo `margen` que ya calcula el Cotizador)
      menos los sueldos y cuotas de crédito pagados ese mes = rentabilidad
@@ -137,19 +141,18 @@ Funciona sin conexión y no depende de ninguna librería externa.
      "Registrar pago" de una cuota, el próximo vencimiento se corre un
      mes automáticamente. Si la fecha de vencimiento ya pasó y todavía
      hay saldo, se marca **Atrasado**.
-5. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
+6. **Ajustes**: datos de la empresa (aparecen en el PDF), la cotización del
    dólar usada para convertir los precios de materiales a pesos, y botones
    para exportar/importar una copia de seguridad completa (materiales,
    presupuestos, cobros, empleados/sueldos, créditos y datos de la empresa)
    en un archivo `.json`. La sección **Producción** define, con listas
    editables (agregar, quitar, subir/bajar de orden), las **etapas de
-   producción** que usa el seguimiento de OT en Finanzas → Ventas (por
-   defecto Corte → Soldadura → Pintura → Terminado → Entregado, pero se
-   pueden renombrar/agregar/reordenar libremente) y las **causas de
-   parada** que aparecen al pausar una OT (por defecto: falta de
-   material, rotura de máquina, falta de personal, espera de aprobación
-   del cliente, otro).
-6. **Botón de chat**: preguntá el precio de un material por nombre o
+   producción** que usa el seguimiento de OT en Proyectos (por defecto
+   Corte → Soldadura → Pintura → Terminado → Entregado, pero se pueden
+   renombrar/agregar/reordenar libremente) y las **causas de parada** que
+   aparecen al pausar una OT (por defecto: falta de material, rotura de
+   máquina, falta de personal, espera de aprobación del cliente, otro).
+7. **Botón de chat**: preguntá el precio de un material por nombre o
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
@@ -380,8 +383,9 @@ js/
   materiales.js         Pantalla Materiales (lista de precios + stock,
                          con carga a mano y OCR de remitos)
   presupuestos.js       Pantallas Nuevo presupuesto + Historial
-  ventas.js             Ventas (marcar cotización como vendida) — vive
-                         como sub-solapa dentro de Finanzas
+  ventas.js             Ventas (marcar cotización como vendida, cobros)
+                         — vive como sub-solapa dentro de Finanzas
+  proyectos.js          Pantalla Proyectos (Gantt, etapa, pausas por OT)
   finanzas.js           Pantalla Finanzas (ventas, rentabilidad, ingresos,
                          sueldos, créditos, en sub-solapas)
   ajustes.js            Pantalla Ajustes (empresa + backup + login)

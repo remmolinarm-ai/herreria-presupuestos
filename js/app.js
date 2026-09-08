@@ -5,6 +5,7 @@
     materiales: function () { VistaMateriales.renderLista(); },
     nuevo: function () { VistaNuevo.render(); },
     historial: function () { VistaHistorial.renderLista(); },
+    proyectos: function () { VistaProyectos.render(); },
     finanzas: function () { VistaFinanzas.render(); },
     ajustes: function () { VistaAjustes.init(); }
   };
@@ -36,6 +37,7 @@
     VistaMateriales.renderLista();
     VistaNuevo.init();
     VistaHistorial.renderLista();
+    VistaProyectos.render();
     VistaFinanzas.render();
     VistaAjustes.init();
   }
@@ -52,6 +54,7 @@
     VistaMateriales.init();
     VistaNuevo.init();
     VistaHistorial.init();
+    VistaProyectos.init();
     VistaFinanzas.init();
     VistaAjustes.init();
     Asistente.initUI();
@@ -66,12 +69,14 @@
     });
     Store.subscribe('presupuestos', function () {
       VistaHistorial.renderLista();
+      VistaProyectos.render();
       VistaFinanzas.render();
     });
     Store.subscribe('empresa', function () {
       VistaAjustes.init();
       VistaMateriales.renderLista();
       VistaNuevo.render();
+      VistaProyectos.render();
     });
     ['empleados', 'pagosSueldo', 'creditos', 'pagosCredito', 'cobros'].forEach(function (coleccion) {
       Store.subscribe(coleccion, function () { VistaFinanzas.render(); });

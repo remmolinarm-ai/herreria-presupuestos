@@ -1,5 +1,5 @@
 /* Cache-first para poder abrir y usar la app sin conexión en el taller. */
-var CACHE_NAME = 'presupuestador-v30';
+var CACHE_NAME = 'presupuestador-v31';
 var APP_SHELL = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ var APP_SHELL = [
   './js/materiales.js',
   './js/presupuestos.js',
   './js/ventas.js',
+  './js/proyectos.js',
   './js/finanzas.js',
   './js/ajustes.js',
   './js/asistente.js',
