@@ -3,9 +3,29 @@
  * sobre la lista de materiales ya cargada (funciona sin internet). Entiende
  * medidas tipo "20x20x1.6" y palabras del nombre del material, y contesta
  * con el precio y la fecha de la última actualización.
+ *
+ * Cuando no encuentra nada en la lista local, sugiere dónde buscarlo
+ * manualmente: no hay forma de traer el precio real de un proveedor desde
+ * acá — un fetch() del navegador a otro sitio lo bloquea CORS, y esta app
+ * no tiene backend propio (es 100% estática para poder instalarse y
+ * funcionar offline) que pueda hacer de intermediario. Lo que sí se puede
+ * hacer es abrir, en una pestaña nueva, el proveedor que más probablemente
+ * tenga ese material: FAMIQ si la consulta menciona acero inoxidable,
+ * Ivanar para acero/hierro en general (mismo criterio que los botones de
+ * la pantalla Materiales).
  */
 (function (global) {
   'use strict';
+
+  function esInoxidable(q) {
+    return /\binox(idable)?\b/.test(normalizar(q));
+  }
+
+  function proveedorSugerido(q) {
+    return esInoxidable(q)
+      ? { nombre: 'FAMIQ', url: 'https://www.famiq.com.ar/' }
+      : { nombre: 'Ivanar', url: 'https://www.ivanar.com.ar/productos' };
+  }
 
   var STOPWORDS = [
     'de', 'del', 'un', 'una', 'el', 'la', 'los', 'las', 'que', 'cuanto',
@@ -76,11 +96,15 @@
 
   function responder(query) {
     var q = query.trim();
-    if (!q) return '¿Qué material querés consultar?';
+    if (!q) return { texto: '¿Qué material querés consultar?' };
 
     var resultados = buscar(q);
     if (resultados.length === 0) {
-      return 'No encontré ningún material parecido a "' + q + '". Revisá el nombre en la lista de precios o cargalo si todavía no está.';
+      var prov = proveedorSugerido(q);
+      return {
+        texto: 'No encontré ningún material parecido a "' + q + '" en tu lista. Revisá el nombre, cargalo si todavía no está, o buscalo directo en el proveedor.',
+        proveedor: prov
+      };
     }
 
     var top = resultados[0];
@@ -89,13 +113,13 @@
 
     if (esClaro) {
       var m = top.mat;
-      return 'El "' + m.nombre + '" cuesta ' + textoPrecio(m) + ' (' + fecha(m.actualizado) + ').';
+      return { texto: 'El "' + m.nombre + '" cuesta ' + textoPrecio(m) + ' (' + fecha(m.actualizado) + ').' };
     }
 
     var lista = resultados.slice(0, 5).map(function (r) {
       return '• ' + r.mat.nombre + ' — ' + textoPrecio(r.mat);
     }).join('\n');
-    return 'Encontré varios parecidos, ¿cuál de estos?\n' + lista;
+    return { texto: 'Encontré varios parecidos, ¿cuál de estos?\n' + lista };
   }
 
   function initUI() {
@@ -109,10 +133,24 @@
 
     var iniciado = false;
 
-    function addBubble(from, text) {
+    // "proveedor" (opcional): { nombre, url } — agrega un link para
+    // abrir ese proveedor en una pestaña nueva cuando el material no
+    // está en la lista local (ver comentario arriba del archivo).
+    function addBubble(from, text, proveedor) {
       var div = document.createElement('div');
       div.className = 'chat-bubble ' + from;
-      div.textContent = text;
+      var textoEl = document.createElement('div');
+      textoEl.textContent = text;
+      div.appendChild(textoEl);
+      if (proveedor) {
+        var a = document.createElement('a');
+        a.className = 'chat-bubble-link';
+        a.href = proveedor.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = 'Buscar en ' + proveedor.nombre;
+        div.appendChild(a);
+      }
       log.appendChild(div);
       log.scrollTop = log.scrollHeight;
     }
@@ -121,7 +159,7 @@
       panel.hidden = false;
       fab.setAttribute('aria-expanded', 'true');
       if (!iniciado) {
-        addBubble('bot', '¡Hola! Preguntame el precio de un material, por ejemplo: "cuánto vale un caño de 20x20x1.6".');
+        addBubble('bot', '¡Hola! Preguntame el precio de un material, por ejemplo: "cuánto vale un caño de 20x20x1.6". Si no lo tengo cargado, te paso el link para buscarlo en Ivanar o FAMIQ.');
         iniciado = true;
       }
       input.focus();
@@ -143,7 +181,7 @@
       addBubble('user', q);
       input.value = '';
       var respuesta = responder(q);
-      setTimeout(function () { addBubble('bot', respuesta); }, 150);
+      setTimeout(function () { addBubble('bot', respuesta.texto, respuesta.proveedor); }, 150);
     });
   }
 

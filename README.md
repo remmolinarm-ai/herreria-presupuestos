@@ -162,6 +162,13 @@ Funciona sin conexión y no depende de ninguna librería externa.
    por medida, por ejemplo *"cuánto vale un caño de 20x20x1.6"*. Es un
    buscador local sobre los materiales ya cargados (no manda nada a
    internet), útil para consultar rápido sin entrar a la lista completa.
+   Si no encuentra nada parecido en tu lista, la respuesta trae un botón
+   **"Buscar en Ivanar"** o **"Buscar en FAMIQ"** (según si la consulta
+   menciona "inox"/"inoxidable" o no) que abre ese proveedor en una
+   pestaña nueva — el chat no trae el precio real del proveedor a la
+   conversación (un sitio externo no deja hacerle `fetch()` desde el
+   navegador por CORS, y esta app no tiene backend propio que pueda
+   hacer de intermediario), pero te ahorra ir a buscarlo a mano.
 
 ## Cotización del dólar
 
