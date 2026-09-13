@@ -452,10 +452,14 @@
     document.getElementById('mat-ml-btn').addEventListener('click', function () {
       global.open(linkMercadoLibre(document.getElementById('mat-buscar').value), '_blank');
     });
-    // FAMIQ (acero inoxidable) no tiene una URL de búsqueda pública conocida
-    // como la de Mercado Libre, así que este botón abre directo la home.
+    // FAMIQ (acero inoxidable) e Ivanar (hierros y perfiles) no tienen una
+    // URL de búsqueda pública conocida como la de Mercado Libre, así que
+    // estos botones abren directo la home de cada proveedor.
     document.getElementById('mat-famiq-btn').addEventListener('click', function () {
       global.open('https://www.famiq.com.ar/', '_blank');
+    });
+    document.getElementById('mat-ivanar-btn').addEventListener('click', function () {
+      global.open('https://www.ivanar.com.ar/', '_blank');
     });
   }
 
