@@ -36,7 +36,11 @@ Funciona sin conexión y no depende de ninguna librería externa.
    solo un aviso visual (en rojo), no bloquea nada. El botón **"Ver en
    Mercado Libre"** abre en una pestaña nueva la búsqueda de Mercado
    Libre con lo que haya escrito en el buscador de materiales (o la home
-   de Mercado Libre si está vacío) — para comparar rápido un precio.
+   de Mercado Libre si está vacío) — para comparar rápido un precio. El
+   botón **"Ver en FAMIQ"** abre la web de [FAMIQ](https://www.famiq.com.ar/)
+   (proveedor de acero inoxidable) en una pestaña nueva — a diferencia de
+   Mercado Libre, no arma una búsqueda con el texto tipeado porque FAMIQ
+   no tiene una URL de búsqueda pública conocida.
 2. **Cotizador**: elegí cliente (con teléfono y email opcionales, para
    poder mandarle el presupuesto después), describí el trabajo (texto
    libre) y sumá los materiales que se van a usar con su cantidad. El

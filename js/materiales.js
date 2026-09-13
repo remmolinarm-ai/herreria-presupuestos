@@ -452,6 +452,11 @@
     document.getElementById('mat-ml-btn').addEventListener('click', function () {
       global.open(linkMercadoLibre(document.getElementById('mat-buscar').value), '_blank');
     });
+    // FAMIQ (acero inoxidable) no tiene una URL de búsqueda pública conocida
+    // como la de Mercado Libre, así que este botón abre directo la home.
+    document.getElementById('mat-famiq-btn').addEventListener('click', function () {
+      global.open('https://www.famiq.com.ar/', '_blank');
+    });
   }
 
   function abrirEdicion(id) {
